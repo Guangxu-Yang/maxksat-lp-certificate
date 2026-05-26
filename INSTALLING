@@ -1,0 +1,26 @@
+The exact verifier requires only Python >= 3.10 and the Python standard
+library.  No package installation is needed.
+
+To check the rational certificate:
+
+    python3 scripts/verify_certificate.py
+
+To run the smoke test:
+
+    python3 -m unittest discover -s tests
+
+Optional: floating-point LP search
+----------------------------------
+
+The file scripts/search_lp_certificate.py rebuilds the floating-point LP used
+to search for the certificate.  This is not part of the formal proof.  It
+requires scipy:
+
+    python3 -m venv .venv
+    source .venv/bin/activate
+    python3 -m pip install --upgrade pip
+    python3 -m pip install ".[search]"
+    python3 scripts/search_lp_certificate.py
+
+The proof-relevant artifact is scripts/verify_certificate.py, which checks the
+final rationalized certificate exactly over Q.
