@@ -24,3 +24,30 @@ requires scipy:
 
 The proof-relevant artifact is scripts/verify_certificate.py, which checks the
 final rationalized certificate exactly over Q.
+
+Companion Max-2SAT appendix code
+--------------------------------
+
+The repository also contains three Max-2SAT scripts for the appendix-facing
+`0.7425` construction line:
+
+    scripts/max2sat_weighted_certificate_search.py
+    scripts/max2sat_build_multirounding_curves.py
+    scripts/max2sat_multi_rounding_certificate_search.py
+
+These are floating-point LP construction scripts, not exact rational
+verification code. They require NumPy and SciPy:
+
+    python3 -m venv .venv
+    source .venv/bin/activate
+    python3 -m pip install --upgrade pip
+    python3 -m pip install numpy scipy
+
+The intended chain is:
+
+1. use `max2sat_weighted_certificate_search.py` to produce a nonuniform base
+   curve;
+2. use `max2sat_build_multirounding_curves.py` to generate the nine scaled
+   rounding curves;
+3. use `max2sat_multi_rounding_certificate_search.py` to certify the
+   multi-rounding witness.
