@@ -32,6 +32,11 @@ rationals using Python's `fractions.Fraction`.
 .
 ├── INSTALLING
 ├── examples.py
+├── artifacts/
+│   └── max2sat/
+│       ├── nonuniform_L450_focus0_str36_sig012_plus009_s6_w335.json
+│       ├── multirounding_L450_9_rounding_curves.json
+│       └── multirounding_L450_focus36_sig012_plus009_s6_ultrafine_scales.json
 ├── scripts/
 │   ├── verify_certificate.py
 │   ├── search_lp_certificate.py
@@ -97,8 +102,8 @@ linear programming.  The proof-relevant step is `verify_certificate.py`.
 ## Companion Max-2SAT Appendix Code
 
 This repository also contains the code path used by the companion Max-2SAT
-appendix line with ratio `0.7425`. This is a floating-point construction line,
-not an exact rational verifier.
+appendix line with ratio `0.7425`. This is not yet an exact rational verifier.
+It is the floating-point construction path for the appendix certificate.
 
 The appendix-facing chain is:
 
@@ -115,6 +120,15 @@ The relevant scripts are:
     used by the appendix certificate;
 - `scripts/max2sat_multi_rounding_certificate_search.py`
   - certifies the max of those rounding rules.
+
+The proof-relevant JSON artifacts carried by this appendix line are:
+
+- `artifacts/max2sat/nonuniform_L450_focus0_str36_sig012_plus009_s6_w335.json`
+  - base nonuniform single-rounding witness;
+- `artifacts/max2sat/multirounding_L450_9_rounding_curves.json`
+  - nine-curve bundle used by the multi-rounding step;
+- `artifacts/max2sat/multirounding_L450_focus36_sig012_plus009_s6_ultrafine_scales.json`
+  - final multi-rounding witness certifying the appendix ratio.
 
 See [docs/max2sat_appendix_code.md](docs/max2sat_appendix_code.md) for the
 role of these scripts and the artifact chain they implement.
