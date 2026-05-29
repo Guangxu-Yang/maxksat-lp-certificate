@@ -71,16 +71,32 @@ def solve_multi(L: int, unary_weight: float, p_list: list[np.ndarray], intervals
         "unary_weight": unary_weight,
         "intervals": [[float(a), float(b)] for a, b in base.intervals],
         "rho": float(res.x[0]),
+        "lambdas": [float(x) for x in res.x[1:n_base]],
         "alphas": [float(x) for x in res.x[n_base:]],
         "min_slack": float(slacks[min_row]),
         "min_row": min_row,
     }
 
 
+def load_curve_bundle(path: str) -> tuple[dict, list[np.ndarray]]:
+    bundle = json.loads(Path(path).read_text())
+    if "curves" not in bundle:
+        raise ValueError("--curves-json must point to a JSON object with a curves array")
+    p_list = [np.asarray(curve["p"], dtype=float) for curve in bundle["curves"]]
+    if not p_list:
+        raise ValueError("curve bundle is empty")
+    return bundle, p_list
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--L", type=int, required=True)
-    parser.add_argument("--unary-weight", type=float, required=True)
+    parser.add_argument("--L", type=int, default=None)
+    parser.add_argument("--unary-weight", type=float, default=None)
+    parser.add_argument(
+        "--curves-json",
+        default=None,
+        help="JSON bundle with keys L, unary_weight, intervals, and curves[].p",
+    )
     parser.add_argument("--intervals-json", default=None)
     parser.add_argument("--power", type=float, default=None)
     parser.add_argument("--focus", type=float, default=None)
@@ -95,7 +111,7 @@ def main() -> None:
     parser.add_argument(
         "--p-json",
         nargs="+",
-        required=True,
+        default=None,
         help="JSON files containing p arrays or previous result objects.",
     )
     parser.add_argument("--output-json", default=None)
@@ -105,10 +121,32 @@ def main() -> None:
         from max2sat_weighted_certificate_search import parse_focus_component
 
         args.focus_component = [parse_focus_component(value) for value in args.focus_component]
-    intervals = load_intervals(args)
-    p_list = [load_p(path, args.L, intervals) for path in args.p_json]
+
+    curve_bundle = None
+    if args.curves_json:
+        curve_bundle, p_list = load_curve_bundle(args.curves_json)
+        if args.L is None:
+            args.L = int(curve_bundle["L"])
+        if args.unary_weight is None:
+            args.unary_weight = float(curve_bundle["unary_weight"])
+        if args.intervals_json is None and "intervals" in curve_bundle:
+            intervals = np.asarray(curve_bundle["intervals"], dtype=float)
+        else:
+            intervals = load_intervals(args)
+    else:
+        if args.L is None or args.unary_weight is None or args.p_json is None:
+            raise SystemExit("provide either --curves-json or all of --L, --unary-weight, and --p-json")
+        intervals = load_intervals(args)
+        p_list = [load_p(path, args.L, intervals) for path in args.p_json]
+
     result = solve_multi(args.L, args.unary_weight, p_list, intervals)
     result["sources"] = args.p_json
+    if curve_bundle is not None:
+        result["curve_source"] = args.curves_json
+        result["source_base_curve"] = curve_bundle.get("source_base_curve")
+        result["source_multirounding"] = curve_bundle.get("source_multirounding")
+        result["base_p"] = curve_bundle.get("base_p")
+        result["curves"] = curve_bundle["curves"]
 
     print("success:", result["success"], result["message"])
     print(f"L = {result['L']}")
