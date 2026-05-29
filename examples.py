@@ -27,6 +27,11 @@ def verify() -> None:
     run([sys.executable, "scripts/verify_certificate.py"])
 
 
+def verify_max2sat() -> None:
+    """Run the exact rational Max-2SAT companion verifier."""
+    run([sys.executable, "scripts/verify_max2sat_certificate.py"])
+
+
 def test() -> None:
     """Run the repository smoke tests."""
     run([sys.executable, "-m", "unittest", "discover", "-s", "tests"])
@@ -44,6 +49,7 @@ def search() -> None:
 def all_checks() -> None:
     """Run the exact verifier and smoke tests."""
     verify()
+    verify_max2sat()
     test()
 
 
@@ -51,7 +57,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "command",
-        choices=["verify", "test", "search", "all"],
+        choices=["verify", "verify-max2sat", "test", "search", "all"],
         nargs="?",
         default="all",
         help="which example/check to run",
@@ -59,6 +65,8 @@ def main() -> None:
     args = parser.parse_args()
     if args.command == "verify":
         verify()
+    elif args.command == "verify-max2sat":
+        verify_max2sat()
     elif args.command == "test":
         test()
     elif args.command == "search":
