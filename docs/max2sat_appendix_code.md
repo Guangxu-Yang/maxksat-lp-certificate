@@ -20,15 +20,17 @@ Concretely:
 1. `scripts/max2sat_weighted_certificate_search.py`
    builds the base weighted Max-2SAT LP and produces a strong nonuniform
    single-rounding artifact such as
-   `nonuniform_L450_focus0_str36_sig012_plus009_s6_w335.json`.
+   `artifacts/max2sat/nonuniform_L450_focus0_str36_sig012_plus009_s6_w335.json`.
 
 2. `scripts/max2sat_build_multirounding_curves.py`
    takes a base curve plus a scale witness and expands them into the nine
-   clipped scaled curves used in the appendix multi-rounding argument.
+   clipped scaled curves used in the appendix multi-rounding argument, namely
+   `artifacts/max2sat/multirounding_L450_9_rounding_curves.json`.
 
 3. `scripts/max2sat_multi_rounding_certificate_search.py`
    runs the LP for the maximum of several rounding rules and produces the
-   multi-rounding witness.
+   multi-rounding witness
+   `artifacts/max2sat/multirounding_L450_focus36_sig012_plus009_s6_ultrafine_scales.json`.
 
 ## Why this subset
 
