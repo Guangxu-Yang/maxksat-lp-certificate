@@ -28,15 +28,25 @@ final rationalized certificate exactly over Q.
 Companion Max-2SAT appendix code
 --------------------------------
 
-The repository also contains three Max-2SAT scripts for the appendix-facing
-`0.7425` construction line:
+The repository also contains the Max-2SAT appendix-facing `0.7425`
+construction line.
+
+This is not yet an exact rational verifier. It is the floating-point
+construction path for the appendix certificate.
+
+The relevant scripts are:
 
     scripts/max2sat_weighted_certificate_search.py
     scripts/max2sat_build_multirounding_curves.py
     scripts/max2sat_multi_rounding_certificate_search.py
 
-These are floating-point LP construction scripts, not exact rational
-verification code. They require NumPy and SciPy:
+The proof-relevant JSON artifacts are:
+
+    artifacts/max2sat/nonuniform_L450_focus0_str36_sig012_plus009_s6_w335.json
+    artifacts/max2sat/multirounding_L450_9_rounding_curves.json
+    artifacts/max2sat/multirounding_L450_focus36_sig012_plus009_s6_ultrafine_scales.json
+
+These scripts require NumPy and SciPy:
 
     python3 -m venv .venv
     source .venv/bin/activate
@@ -46,8 +56,8 @@ verification code. They require NumPy and SciPy:
 The intended chain is:
 
 1. use `max2sat_weighted_certificate_search.py` to produce a nonuniform base
-   curve;
+   curve and the base witness JSON;
 2. use `max2sat_build_multirounding_curves.py` to generate the nine scaled
-   rounding curves;
+   rounding curves JSON;
 3. use `max2sat_multi_rounding_certificate_search.py` to certify the
-   multi-rounding witness.
+   multi-rounding witness JSON.
