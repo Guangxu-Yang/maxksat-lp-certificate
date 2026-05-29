@@ -32,21 +32,15 @@ rationals using Python's `fractions.Fraction`.
 .
 ├── INSTALLING
 ├── examples.py
-├── artifacts/
-│   └── max2sat/
-│       ├── nonuniform_L450_focus0_str36_sig012_plus009_s6_w335.json
-│       ├── multirounding_L450_9_rounding_curves.json
-│       └── multirounding_L450_focus36_sig012_plus009_s6_ultrafine_scales.json
 ├── scripts/
 │   ├── verify_certificate.py
-│   ├── search_lp_certificate.py
-│   ├── max2sat_weighted_certificate_search.py
-│   ├── max2sat_build_multirounding_curves.py
-│   └── max2sat_multi_rounding_certificate_search.py
+│   ├── verify_max2sat_certificate.py
+│   └── search_lp_certificate.py
+├── artifacts/
+│   └── max2sat/
 ├── docs/
 │   ├── lp_certificate.md
-│   ├── relationship_to_oblivious_csps.md
-│   └── max2sat_appendix_code.md
+│   └── relationship_to_oblivious_csps.md
 ├── tests/
 │   └── test_verify_certificate.py
 ├── .github/workflows/
@@ -67,6 +61,15 @@ Run the exact verifier:
 
 ```bash
 python3 scripts/verify_certificate.py
+```
+
+Run the Max-2SAT companion verifier for the 450-bucket, 9-profile snapshot
+certificate.  Its default exact target is
+`18563/25000 = 0.74252`, which implies the stated `0.7425` guarantee with a
+small rational margin:
+
+```bash
+python3 scripts/verify_max2sat_certificate.py
 ```
 
 Expected output:
@@ -96,42 +99,17 @@ python3 -m pip install ".[search]"
 python3 examples.py search
 ```
 
-This search script is not part of the formal proof; it uses floating point
-linear programming.  The proof-relevant step is `verify_certificate.py`.
+Optional: regenerate the Max-2SAT exact witness from the fixed 9-profile curve
+bundle:
 
-## Companion Max-2SAT Appendix Code
-
-This repository also contains the code path used by the companion Max-2SAT
-appendix line with ratio `0.7425`. This is not yet an exact rational verifier.
-It is the floating-point construction path for the appendix certificate.
-
-The appendix-facing chain is:
-
-```text
-weighted -> nonuniform -> multirounding.
+```bash
+python3 scripts/max2sat_multi_rounding_certificate_search.py \
+  --curves-json artifacts/max2sat/multirounding_L450_9_rounding_curves.json \
+  --output-json artifacts/max2sat/multirounding_L450_exact_witness.json
 ```
 
-The relevant scripts are:
-
-- `scripts/max2sat_weighted_certificate_search.py`
-  - base weighted Max-2SAT snapshot LP and nonuniform single-rounding search;
-- `scripts/max2sat_build_multirounding_curves.py`
-  - expands a base curve plus a scale witness into the nine rounding curves
-    used by the appendix certificate;
-- `scripts/max2sat_multi_rounding_certificate_search.py`
-  - certifies the max of those rounding rules.
-
-The proof-relevant JSON artifacts carried by this appendix line are:
-
-- `artifacts/max2sat/nonuniform_L450_focus0_str36_sig012_plus009_s6_w335.json`
-  - base nonuniform single-rounding witness;
-- `artifacts/max2sat/multirounding_L450_9_rounding_curves.json`
-  - nine-curve bundle used by the multi-rounding step;
-- `artifacts/max2sat/multirounding_L450_focus36_sig012_plus009_s6_ultrafine_scales.json`
-  - final multi-rounding witness certifying the appendix ratio.
-
-See [docs/max2sat_appendix_code.md](docs/max2sat_appendix_code.md) for the
-role of these scripts and the artifact chain they implement.
+This search script is not part of the formal proof; it uses floating point
+linear programming.  The proof-relevant step is `verify_certificate.py`.
 
 ## What Is Verified?
 
