@@ -1,0 +1,10 @@
+% Re-render the original paper figure without changing its content.
+% From docs/assets, run:
+% pdflatex -interaction=nonstopmode -halt-on-error -no-shell-escape ai-agent-workflow.tex
+% pdftoppm -png -singlefile -r 450 ai-agent-workflow.pdf ai-agent-workflow
+% Optional vector output: pdftocairo -svg ai-agent-workflow.pdf ai-agent-workflow.svg
+\documentclass[11pt,tikz,border=5pt]{standalone}
+\usepackage{amsmath,amssymb}
+\begin{document}
+\input{../../paper/AI_agent.tikz}
+\end{document}
