@@ -1,0 +1,33 @@
+{
+  "schema_version": "quantum-stable-release-v1",
+  "updated_utc": "2026-09-06T17:00:00Z",
+  "stable_version": {
+    "name": "v035_j2_production_identity_hardening",
+    "root": "Workspace/versions/v035_j2_production_identity_hardening",
+    "manifest": "Workspace/versions/v035_j2_production_identity_hardening/SHA256SUMS.final.json",
+    "manifest_sha256": "69b0dd7e950582965abab284b95f16fb337837260bfa63dabae7ee3bd8d76002",
+    "manifest_entries": 25,
+    "role": "latest stable complete CPU LP plus independent Fraction/identity production chain",
+    "c_relocation_note": "The C copy runs the tiny full chain, but one of 15 unit tests intentionally rejects an old v032 candidate whose identity is bound to the frozen E absolute path. Frozen E reproduction remains 15/15; do not rewrite that historical identity in place."
+  },
+  "latest_development_version": {
+    "name": "v036_joint_weight_view_loworder",
+    "root": "Workspace/versions/v036_joint_weight_view_loworder",
+    "manifest": "Workspace/versions/v036_joint_weight_view_loworder/SHA256SUMS.json",
+    "manifest_sha256": "074c6665d2bd2745f166ab38db0dd91e3474095e3f09b4655596ce0ab72f92ba",
+    "manifest_entries": 28,
+    "role": "latest development branch; P4 LOW screening is not a final Max-kSAT certificate"
+  },
+  "strict_incumbent": {
+    "version": "v016_j2_group_search",
+    "rho": "742694813/1000000000",
+    "index": "Workspace/PRESERVATION_INDEX.json"
+  },
+  "runtime": {
+    "registry": "Workspace/.venvs/ENVIRONMENTS.json",
+    "default_environment": "cuda_shared",
+    "short_python": "E:/QAlgoCUDA/Scripts/python.exe",
+    "new_output_root": "Workspace/runtime",
+    "historical_artifact_junctions_are_read_only": true
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": "quantum-preservation-index-v1",
+  "created_utc": "2026-09-06T17:00:00Z",
+  "purpose": "Authoritative keep-list for the best strict certificate and the current stable/development code. Historical CURRENT* pointers are retained as provenance but do not override this index.",
+  "strict_incumbent": {
+    "rho_fraction": "742694813/1000000000",
+    "rho_decimal": "0.742694813",
+    "version": "v016_j2_group_search",
+    "classification": "strict_development_incumbent",
+    "complete_cpu_lp_and_independent_fraction_identity": true
+  },
+  "protected_files": [
+    {
+      "role": "strict_incumbent_promotion",
+      "path": "E:/Workspace for codex/Quantum Algorithm/Workspace/versions/v016_j2_group_search/artifacts/development/strict_incumbent_promotion_001/promotion.json",
+      "sha256": "8475f73d5a2edcdbace963627c1ffef11bb5c3895384b319309b3cae7db10741"
+    },
+    {
+      "role": "strict_incumbent_promotion_manifest",
+      "path": "E:/Workspace for codex/Quantum Algorithm/Workspace/versions/v016_j2_group_search/artifacts/development/strict_incumbent_promotion_001/SHA256SUMS.json",
+      "sha256": "db314bb88bec3d819f3bf62568582d6bac84c8f8da692dfa2cde84a32ccae0e2"
+    },
+    {
+      "role": "strict_exact_certificate",
+      "path": "E:/Workspace for codex/Quantum Algorithm/Workspace/versions/v016_j2_group_search/artifacts/development/target_domain_p500_fine_unary_001/exact_candidate.json",
+      "sha256": "84ad3c58240ee3677d733a625c7abb8097abf74975a359b40d3c9737b03e342b"
+    },
+    {
+      "role": "strict_fraction_verify_report",
+      "path": "E:/Workspace for codex/Quantum Algorithm/Workspace/versions/v016_j2_group_search/artifacts/development/target_domain_p500_fine_unary_001/exact_gate/verify_report.json",
+      "sha256": "32e25248fbd6159ca04f4927bbbf4068b1664e513b70c790f4e99ad9532538a0"
+    },
+    {
+      "role": "strict_identity_report",
+      "path": "E:/Workspace for codex/Quantum Algorithm/Workspace/versions/v016_j2_group_search/artifacts/development/target_domain_p500_fine_unary_001/exact_gate/identity_report.json",
+      "sha256": "9477bd303987f1ad86ad79913e53a3a060d466dc54670d7e46c50f1c30a16ebd"
+    },
+    {
+      "role": "strict_certificate_manifest",
+      "path": "E:/Workspace for codex/Quantum Algorithm/Workspace/versions/v016_j2_group_search/artifacts/development/target_domain_p500_fine_unary_001/SHA256SUMS.json",
+      "sha256": "90dcbdeb54d29731bf39c0ee9e6c75b1b81c5c029edd75e59c7faebf039e6132"
+    },
+    {
+      "role": "stable_v035_source_manifest",
+      "path": "C:/Users/Haoyu/Desktop/RL for Quantum streaming algorithm design/Workspace/versions/v035_j2_production_identity_hardening/SHA256SUMS.final.json",
+      "sha256": "69b0dd7e950582965abab284b95f16fb337837260bfa63dabae7ee3bd8d76002"
+    },
+    {
+      "role": "development_v036_source_manifest",
+      "path": "C:/Users/Haoyu/Desktop/RL for Quantum streaming algorithm design/Workspace/versions/v036_joint_weight_view_loworder/SHA256SUMS.json",
+      "sha256": "074c6665d2bd2745f166ab38db0dd91e3474095e3f09b4655596ce0ab72f92ba"
+    }
+  ],
+  "immutable_roots": [
+    "Logs",
+    "Workspace/migrations",
+    "E:/Workspace for codex/Quantum Algorithm/Workspace/versions/v016_j2_group_search/artifacts/development/strict_incumbent_promotion_001",
+    "E:/Workspace for codex/Quantum Algorithm/Workspace/versions/v016_j2_group_search/artifacts/development/target_domain_p500_fine_unary_001"
+  ]
+}
