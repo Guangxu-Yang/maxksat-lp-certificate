@@ -1,0 +1,101 @@
+\section{Quantum algorithm for weighted pseudo-snapshot estimation}
+
+In this section, we estimate the weighted pseudo-snapshot score for the fixed rounding profile $\Theta=(\ell_0,\bw,\mathcal I,\br)$ and coefficients selected in Lemma~\ref{lem:maxksat-weighted-snapshot-bound}.
+Our one-endpoint and two-endpoint estimators use similar constructions  of  the quantum sketch of Kallaugher, Parekh, and Voronova~\cite{KPV23} on streaming Max-DiCut.
+
+\begin{lemma}[Quantum estimation]
+\label{lem:maxksat-pairwise-estimator}
+For any fixed $\eps\in(0,1/100]$, there is a one-pass quantum streaming algorithm using $O_\eps\!\left(\log^5(n+m)\right)$ qubits and $O_\eps\!\left(\log^5(n+m)\right)$ classical bits whose output $\widehat L_{\le\ell_0}$ satisfies
+\[
+  \left|\widehat L_{\le\ell_0}
+    -L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))\right|
+  \le\eps m
+\]
+with probability at least $15/16$.
+\end{lemma}
+We first describe the quantum registers and the algorithm for each coordinate;  then combine these coordinate-wise procedures into the full quantum algorithm and prove Lemma~\ref{lem:maxksat-pairwise-estimator} in Section~\ref{sec:proof_of_quantum_algorithm}.
+
+
+
+
+\medskip
+At first, we recall and introduce some basic definitions and notations for the algorithm design. 
+We use the integer weights, literal copies, and degree intervals $(D_a,D_{a+1}]$ from Section~\ref{sec:weighted-pseudosnapshot-closeness}. Recall $D_0=0$, $D_a=\lfloor(1+\eps^3)^a\rfloor$ for $1\le a\le A$, and $\kappa=\lceil K\eps^{-7}\rceil$ for a sufficiently large constant $K>0$. Thus $D_a=O_\eps(m)$ and $A=O_\eps(\log(m+1))$.
+For $2D_a\ge\kappa$, the sampling bits $f_a(C,r,h)$ independently select positive literal copies with probability $\kappa/(2D_a)$; $\{f_a\}$ denotes this family over high-degree intervals. Independently of $\{f_a\}$, the noise $g(v)\sim\Unif[-\eps,\eps]$ is shared by all clauses containing $x_v$.
+The pseudo-biases and labels are from Definitions~\ref{def:weighted-pseudobias} and~\ref{def:weighted-pseudosnapshot}.
+Throughout this section, constants in $O_\eps(\cdot)$ may also depend on the fixed rounding profile and coefficients.
+The estimators ignore clauses with length greater than $\ell_0$.
+
+For $C\in\Phi_{\le\ell_0}$ and $r\in[|C|]$, let $a(C,r)\in\{0,\ldots,A-1\}$ be the index of the degree interval containing its prefix total degree:
+\[
+  D_{a(C,r)}<d_{v_r(C)}^{\le C}\le D_{a(C,r)+1}.
+\]
+For $C=C_\nu$, write $\ell_i:=|C_i|$ for $i\in[\nu]$. When $2D_a\ge\kappa$, define the sampled positive-prefix count for interval $a$ by
+\[
+  s_{v,a}^{\le C}:=
+  \sum_{\substack{i\in[\nu]:\ \ell_i\le\ell_0}}
+  \sum_{\substack{r\in[\ell_i],\ h\in[w_{\ell_i}]\\ v_r(C_i)=v,\ s_r(C_i)=+}}
+  f_a(C_i,r,h).
+\]
+When $a=a(C,r)$ and $v=v_r(C)$, we have $s_{v,a}^{\le C}=s_v^{\le C}$.
+
+Let $K_{\mathrm{base}}\ge3$ be a constant; we will choose its value in the proof of Lemma~\ref{lem:maxksat-pairwise-estimator}.
+For every degree interval, independently choose a scaling factor 
+\[
+  B_a\sim\Unif\bigl\{\lceil K_{\mathrm{base}}D_{a+1}\rceil,\ldots,
+    \lceil2K_{\mathrm{base}}D_{a+1}\rceil\bigr\},
+\]
+independently of $\{f_a\}$ and $g$, so that $B_a>D_{a+1}+1$.
+Write $\omega=(\{f_a\},g,\{B_a\})$ for the public randomness shared by all estimators; their measurement outcomes are independent conditional on $\omega$.
+
+We split the pseudo-snapshot coordinates according to these interval indices.
+For degree interval indices $a,b\in\{0,\ldots,A-1\}$, labels $\alpha,\beta\in\sgnset\times[L]$, and $1\le j\le\ell\le\ell_0$, define
+\[
+  U_{\ell,j,\alpha}^{(a)}
+  :=\#\{C\in\Phi_{\le\ell_0}:|C|=\ell,\ 
+    a(C,j)=a,
+    \widetilde\alpha_j(C)=\alpha\}.
+\]
+For $1\le j<t\le\ell\le\ell_0$, define
+\[
+  P_{\ell,j,t,\alpha,\beta}^{(a,b)}
+  :=\#\Big\{C\in\Phi_{\le\ell_0}:
+    {|C|=\ell,\ a(C,j)=a,
+      a(C,t)=b,
+      (\widetilde\alpha_j(C),\widetilde\alpha_t(C))=(\alpha,\beta)}\Big\}.
+\]
+Summing over the interval indices gives the coordinates in Definition~\ref{def:weighted-pseudosnapshot}:
+\[
+  \widetilde U_{\ell,j,\alpha}=\sum_a U_{\ell,j,\alpha}^{(a)},\qquad
+  \widetilde P_{\ell,j,t,\alpha,\beta}=\sum_{a,b}P_{\ell,j,t,\alpha,\beta}^{(a,b)}.
+\]
+
+Definition~\ref{def:snapshot-score} gives
+\begin{equation}
+\label{eq:maxksat-pseudosnap-score-decomp}
+\begin{aligned}
+  L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))
+  ={}&\sum_a\sum_\alpha q_\alpha U_{1,1,\alpha}^{(a)}
+    +\sum_{a,b}\sum_{\alpha,\beta}
+      \bigl(1-(1-q_\alpha)(1-q_\beta)\bigr)P_{2,1,2,\alpha,\beta}^{(a,b)}\\
+  &+\sum_{\ell=3}^{\ell_0}\bigg[
+      c_\ell M_\ell
+      +\sum_{j=1}^\ell\sum_a\sum_\alpha
+        u_{\ell,j}(\alpha)U_{\ell,j,\alpha}^{(a)}\\
+  &\hspace{5em}+\sum_{1\le j<t\le\ell}\sum_{a,b}\sum_{\alpha,\beta}
+        p_{\ell,jt}(\alpha,\beta)P_{\ell,j,t,\alpha,\beta}^{(a,b)}\bigg].
+\end{aligned}
+\end{equation}
+The counts $M_\ell$, $3\le\ell\le\ell_0$, can be maintained exactly with $O(\log m)$ classical bits, since $\ell_0$ is fixed.
+
+ 
+We run the estimators of one-endpoint and two-endpoint coordinate in Sections~\ref{subsec:One-endpoint_estimation} and~\ref{subsec:Two-endpoint_estimation}, respectively. 
+We first describe their quantum registers and operations in the following section.
+
+\input{Estimation/quantum_register}
+
+\input{Estimation/one-endpoint_estimation}
+
+\input{Estimation/two_endpoint_estimation}
+
+\input{Estimation/proof_of_quantum_algorithm}

@@ -1,0 +1,329 @@
+\subsection{Two-endpoint estimation} \label{subsec:Two-endpoint_estimation}
+Fix a two-endpoint coordinate $P^{(a,b)}_{\ell,j,t,\alpha,\beta}$, where $1\le j<t\le\ell\le\ell_0$, $\alpha=(s_\alpha,i_\alpha)$, and $\beta=(s_\beta,i_\beta)$.
+The indices $a,b$ specify the degree intervals $(D_a,D_{a+1}]$ and $(D_b,D_{b+1}]$.
+For $|C|=\ell$, set $\mathsf{Tgt}^{\ell,j,t,\alpha,\beta}_C:=\1[s_j(C)=s_\alpha,\ s_t(C)=s_\beta]$; set it to $0$ otherwise.
+When $\mathsf{Tgt}^{\ell,j,t,\alpha,\beta}_C=1$, write $u:=v_j(C)$ and $v:=v_t(C)$.
+We use the sampled prefix counts $s_{u,a}^{\le C}$ and $s_{v,b}^{\le C}$ on high-degree intervals, and the exact positive prefix degrees on low-degree intervals.
+
+For fixed $\omega$, the expected output can differ from the coordinate if an endpoint satisfies the impersonation condition in~\eqref{eq:scale-a-impersonation-def} for a different degree interval, or if a sampled prefix count on its actual interval is at least $\kappa$.
+The final bound below accounts for these two errors.
+
+\subsubsection{High-degree on both endpoints} \label{sec:highhigh}
+First suppose $2D_a\ge\kappa$ and $2D_b\ge\kappa$.
+Recall
+\[
+  \Gamma_a(d,c)=d+B_a c,\qquad \Gamma_b(d,c)=d+B_b c,
+\]
+where $B_a,B_b$ are chosen at the start of this section.
+Set
+\[
+  \Sigma_a:=\{0,1,\ldots,\kappa-1\},\qquad
+  \Sigma_b:=\{0,1,\ldots,\kappa-1\}.
+\]
+For each $(\sigma,\tau)\in\Sigma_a\times\Sigma_b$, maintain four sub-sketches with separate quantum registers: Lower-Lower, Lower-Upper, Upper-Lower, and Upper-Upper.
+They use the same $\{f_a\},g,\{B_a\}$; their quantum measurements are independent conditioned on $\omega$.
+The superscripts $\mathrm{LL},\mathrm{LU},\mathrm{UL},\mathrm{UU}$ refer to these four sub-sketches, respectively.
+
+\paragraph{Quantum register.}
+Each of the four sub-sketches has an identical quantum register. We use the global register size $M=\lceil \gamma_{\eps} m\rceil$, with $\gamma_\eps$ chosen large enough for the fixed $\eps>0$. The basis labels are:
+\begin{enumerate}
+  \item the anchor $\ket{\bot}$;
+  \item spare labels $S_1,\ldots,S_M$;
+  \item labels $Z_1(v,r)$ and $Z_2(v,r)$, where $v\in[n]$ and $r\in[M]$;
+  \item garbage labels $G_1(v,r)$ and $G_2(v,r)$, where $v\in[n]$ and $r\in[M]$.
+\end{enumerate}
+Each sub-sketch has a classical pointer $\mathcal P$, shared by its two label families.
+For $i=1,2$, $\inc{Z_i,u,r}$ repeats the following cyclic permutation $r$ times, advancing $\mathcal P$ after each repetition:
+\[
+  S_{\mathcal P}\to Z_i(u,1)\to\cdots\to Z_i(u,M)
+  \to G_i(u,M)\to\cdots\to G_i(u,1)\to S_{\mathcal P}.
+\]
+After $S_M$, the pointer returns to $S_1$.
+Initialize
+\[
+  \Qstate{T_0}
+  =\frac{\ket{\bot}+\ket{S_1}+\cdots+\ket{S_{M-1}}}{\sqrt M},
+  \qquad T_0:=\{S_1,\ldots,S_{M-1}\},\qquad\mathcal P:=1.
+\]
+The register uses $O(\log(n+m))$ qubits, and the pointer uses $O(\log m)$ classical bits.
+
+\paragraph{Update.}
+For each literal copy on a variable $u$, each active sub-sketch performs
+\begin{enumerate}
+  \item $\inc{Z_1,u,1}$;
+  \item $\inc{Z_2,u,1}$;
+  \item if the copy is positive and selected by $f_a$, $\inc{Z_1,u,B_a}$;
+  \item if the copy is positive and selected by $f_b$, $\inc{Z_2,u,B_b}$.
+\end{enumerate}
+The total numbers of shifts on $Z_1(u,\cdot)$ and $Z_2(u,\cdot)$ are $\Gamma_a(d_u^{\le C},s_{u,a}^{\le C})$ and $\Gamma_b(d_u^{\le C},s_{u,b}^{\le C})$, respectively, before a query.
+
+\paragraph{Query.}
+If $\mathsf{Tgt}^{\ell,j,t,\alpha,\beta}_C=0$, do nothing.
+Otherwise the four sub-sketches apply pair-query to the following pairs, in the order $\mathrm{LL},\mathrm{LU},\mathrm{UL},\mathrm{UU}$:
+\[
+\begin{aligned}
+  &\bigl(Z_1(u,B_a\sigma+D_a+1),\ Z_2(v,B_b\tau+D_b+1)\bigr),\\
+  &\bigl(Z_1(u,B_a\sigma+D_a+1),\ Z_2(v,B_b\tau+D_{b+1}+1)\bigr),\\
+  &\bigl(Z_1(u,B_a\sigma+D_{a+1}+1),\ Z_2(v,B_b\tau+D_b+1)\bigr),\\
+  &\bigl(Z_1(u,B_a\sigma+D_{a+1}+1),\ Z_2(v,B_b\tau+D_{b+1}+1)\bigr).
+\end{aligned}
+\]
+Denote their outputs by $\chi^{\mathrm{LL}}_{\sigma,\tau}(C)$, $\chi^{\mathrm{LU}}_{\sigma,\tau}(C)$, $\chi^{\mathrm{UL}}_{\sigma,\tau}(C)$, and $\chi^{\mathrm{UU}}_{\sigma,\tau}(C)$, each in $\{-1,0,1\}$.
+A sub-sketch continues when its output is $0$.
+When its output is $\pm1$, it stops the quantum updates and queries, stores the sign, $u,v,\sigma,\tau$, and counts
+\[
+  d_u^{>C},\quad p_u^{>C},\quad d_v^{>C},\quad p_v^{>C}
+\]
+exactly during the remaining stream.
+
+\paragraph{Output.}
+For a sub-sketch that succeeds on $C$, test
+\[
+\begin{aligned}
+  F_{\sigma,\tau}(C):=\1\Biggl[&
+  \clip\left(\frac{2\left(\frac{2D_a}{\kappa}\sigma+p_u^{>C}\right)}{D_a+d_u^{>C}}-1+g(u)\right)\in I_{i_\alpha},\\
+  &\clip\left(\frac{2\left(\frac{2D_b}{\kappa}\tau+p_v^{>C}\right)}{D_b+d_v^{>C}}-1+g(v)\right)\in I_{i_\beta}\Biggr].
+\end{aligned}
+\]
+For $h\in\{\mathrm{LL},\mathrm{LU},\mathrm{UL},\mathrm{UU}\}$, define its contribution on that clause by
+\[
+  Y^h_{\sigma,\tau}(C):=\frac M2\chi^h_{\sigma,\tau}(C)F_{\sigma,\tau}(C).
+\]
+Its contribution on every other clause is $0$.
+
+\subsubsection{Remaining cases} \label{sec:othercases}
+If either interval is low-degree, keep the same four sub-sketches and registers.
+On a low-degree interval use the exact positive prefix degree instead of the sampled count.
+Set
+\[
+  \Sigma_a:=\begin{cases}
+    \{0,1,\ldots,\kappa-1\},&2D_a\ge\kappa,\\
+    \{(d_1,c_1):D_a<d_1\le D_{a+1},\ 0\le c_1\le d_1\},&2D_a<\kappa,
+  \end{cases}
+\]
+\[
+  \Sigma_b:=\begin{cases}
+    \{0,1,\ldots,\kappa-1\},&2D_b\ge\kappa,\\
+    \{(d_2,c_2):D_b<d_2\le D_{b+1},\ 0\le c_2\le d_2\},&2D_b<\kappa.
+  \end{cases}
+\]
+All degrees and counts in these sets are integers.
+
+\paragraph{Update.}
+For every literal copy on $u$, apply $\inc{Z_1,u,1}$ and $\inc{Z_2,u,1}$.
+For each positive copy, also apply $\inc{Z_1,u,B_a}$ when $2D_a<\kappa$; when $2D_a\ge\kappa$, apply it only if the copy is selected by $f_a$.
+Use the corresponding rule with $b,f_b$ for $Z_2$.
+
+\paragraph{Query.}
+When $\mathsf{Tgt}^{\ell,j,t,\alpha,\beta}_C=1$, the lower and upper queried labels for the first family are
+\[
+\begin{cases}
+  Z_1(u,B_a\sigma+D_a+1),\quad Z_1(u,B_a\sigma+D_{a+1}+1),&2D_a\ge\kappa,\\
+  Z_1(u,B_a c_1+d_1),\quad Z_1(u,B_a c_1+d_1+1),&2D_a<\kappa,
+\end{cases}
+\]
+where $\sigma=(d_1,c_1)$ in the second case.
+The second family uses the same formulas with $b,v,\tau=(d_2,c_2)$ in place of $a,u,\sigma=(d_1,c_1)$.
+Pair-query combines the lower/lower, lower/upper, upper/lower, and upper/upper queried labels.
+Successful sub-sketches store the same data and count the exact suffix degrees as above.
+
+\paragraph{Output.}
+Use the following candidate prefix values:
+\[
+  (\widehat d_u,\widehat p_u):=\begin{cases}
+    (D_a,\frac{2D_a}{\kappa}\sigma),&2D_a\ge\kappa,\\
+    (d_1,c_1),&2D_a<\kappa,\quad\sigma=(d_1,c_1),
+  \end{cases}
+\]
+\[
+  (\widehat d_v,\widehat p_v):=\begin{cases}
+    (D_b,\frac{2D_b}{\kappa}\tau),&2D_b\ge\kappa,\\
+    (d_2,c_2),&2D_b<\kappa,\quad\tau=(d_2,c_2).
+  \end{cases}
+\]
+Then set
+\[
+\begin{aligned}
+  F_{\sigma,\tau}(C):=\1\Biggl[&
+  \clip\left(\frac{2(\widehat p_u+p_u^{>C})}{\widehat d_u+d_u^{>C}}-1+g(u)\right)\in I_{i_\alpha},\\
+  &\clip\left(\frac{2(\widehat p_v+p_v^{>C})}{\widehat d_v+d_v^{>C}}-1+g(v)\right)\in I_{i_\beta}\Biggr].
+\end{aligned}
+\]
+Use the same outputs $Y^h_{\sigma,\tau}(C)$ as in the high-degree case.
+
+\paragraph{Correctness.}
+We first bound the number of shifts and queried levels, so Lemma~\ref{lem:nonwrapping-threshold-invariant} applies to both label families.
+\begin{lemma}[Increment operations and queried levels]
+\label{lem:two-endpoint-label-budget}
+Let $\mathcal G_2:=\mathcal G_1$ be the event in Lemma~\ref{lem:good_label_budget}.
+For $m\ge1$ and a sufficiently large constant $\gamma_\eps$ in the register size $M=\lceil\gamma_\eps m\rceil$, every queried level lies in $[M-1]$.
+On $\mathcal G_2$, every two-endpoint sub-sketch performs fewer than $M$ elementary shifts, counting both label families.
+In particular, $\Pr[\mathcal G_2]\ge1-1/160$.
+\end{lemma}
+\begin{proof}
+Recall from Lemma~\ref{lem:good_label_budget} that, on $\mathcal G_1$, the number $X_a$ of positive literal copies selected by $f_a$ over the whole stream satisfies
+\[
+  X_a\le K_\eps\frac{m}{D_a}\qquad(2D_a\ge\kappa).
+\]
+Since $B_a\le2K_{\mathrm{base}}D_{a+1}+1$ and $D_{a+1}\le(1+\eps^3)D_a+2$,
+\[
+  B_aX_a\le(2K_{\mathrm{base}}D_{a+1}+1)K_\eps\frac{m}{D_a}=O_\eps(m).
+\]
+For $2D_a<\kappa$, every positive copy applies the $B_a$-step update, and
+\[
+  B_a\sum_v\widetilde p_v=O_\eps(m),
+\]
+since $B_a=O_\eps(1)$ and~\eqref{eq:weighted-total-copies} gives
+\[
+\sum_v\widetilde p_v\le\sum_v\widetilde d_v
+\le m\max_{\ell\in[\ell_0]}\ell w_\ell=O(m).
+\]
+The same bounds hold for the second family.
+When both intervals are high-degree, the total number of elementary shifts is at most
+\[
+  2\sum_v\widetilde d_v+B_aX_a+B_bX_b=O_\eps(m)<M.
+\]
+For a low-degree interval, replace its term $B_aX_a$ or $B_bX_b$ by $B_a\sum_v\widetilde p_v$ or $B_b\sum_v\widetilde p_v$; the same bound holds.
+
+For a high-degree interval, every queried level is at most
+\[
+  (\kappa-1)B_a+D_{a+1}+1=O_\eps(m).
+\]
+For a low-degree interval, every queried level is at most
+\[
+  B_aD_{a+1}+D_{a+1}+1=O_\eps(1).
+\]
+Choose $\gamma_\eps$ large enough that these levels and the total number of shifts are strictly below $M$.
+The probability bound follows from $\mathcal G_2=\mathcal G_1$.
+\end{proof}
+
+\paragraph{Threshold inequalities.}
+Fix $\omega\in\mathcal G_2$.
+For a clause $C$ with $\mathsf{Tgt}^{\ell,j,t,\alpha,\beta}_C=1$, define
+\[
+  N_a(C):=\begin{cases}
+    \Gamma_a(d_u^{\le C},s_{u,a}^{\le C}),&2D_a\ge\kappa,\\
+    \Gamma_a(d_u^{\le C},p_u^{\le C}),&2D_a<\kappa.
+  \end{cases}
+\]
+The lower and upper thresholds are
+\[
+  (L_a(\sigma),U_a(\sigma)):=\begin{cases}
+    (B_a\sigma+D_a+1,\ B_a\sigma+D_{a+1}+1),&2D_a\ge\kappa,\\
+    (B_a c_1+d_1,\ B_a c_1+d_1+1),&2D_a<\kappa,\quad\sigma=(d_1,c_1).
+  \end{cases}
+\]
+Define $N_b(C),L_b(\tau),U_b(\tau)$ by the same formulas for the second endpoint.
+For each sub-sketch, let $t_a$ and $t_b$ be its queried thresholds on the two families.
+Lemma~\ref{lem:nonwrapping-threshold-invariant} gives, before its query while active,
+\[
+  Z_1(u,t_a)\in T\iff N_a(C)\ge t_a,\qquad
+  Z_2(v,t_b)\in T\iff N_b(C)\ge t_b.
+\]
+Put
+\[
+  \Delta_a(C,\sigma):=\1[N_a(C)\ge L_a(\sigma)]-\1[N_a(C)\ge U_a(\sigma)].
+\]
+If the first endpoint does not satisfy $\mathsf{Imp}^{a}_{C,j}$, then
+\[
+  \Delta_a(C,\sigma)=\begin{cases}
+    \1[D_a<d_u^{\le C}\le D_{a+1},\ s_{u,a}^{\le C}=\sigma],&2D_a\ge\kappa,\\
+    \1[d_u^{\le C}=d_1,\ p_u^{\le C}=c_1],&2D_a<\kappa,\quad\sigma=(d_1,c_1).
+  \end{cases}
+\]
+On its actual degree interval, the threshold differences in~\eqref{eq:one-endpoint-ordinary-high-id} and~\eqref{eq:one-endpoint-ordinary-low-id} test the sampled count and the exact prefix-degree pair, respectively.
+If the prefix degree is outside the interval and $\Delta_a(C,\sigma)\ne0$, then for some queried count $c_0$ and some $D_a<d_0\le D_{a+1}$,
+\[
+  d_u^{\le C}+B_a c=B_a c_0+d_0
+  \quad\Longrightarrow\quad
+  d_u^{\le C}=(c_0-c)B_a+d_0,
+\]
+where $c=s_{u,a}^{\le C}$ on a high-degree interval and $c=p_u^{\le C}$ on a low-degree interval.
+Equality modulo $B_a$ excludes $d_u^{\le C}\le D_a$.
+For $d_u^{\le C}>D_{a+1}$, we have $1\le c_0-c\le H_a$ and
+\[
+d_u^{\le C}\in[(c_0-c)B_a+D_a+1,(c_0-c)B_a+D_{a+1}],
+\]
+so $\mathsf{Imp}^{a}_{C,j}$ holds by~\eqref{eq:scale-a-impersonation-def}.
+The second endpoint has the same formulas with $b,v,\tau$ in place of $a,u,\sigma$.
+
+\paragraph{Estimation.}
+Define
+\[
+  \widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}(C):=
+  \sum_{(\sigma,\tau)\in\Sigma_a\times\Sigma_b}
+  \bigl(Y^{\mathrm{LL}}_{\sigma,\tau}(C)-Y^{\mathrm{LU}}_{\sigma,\tau}(C)
+    -Y^{\mathrm{UL}}_{\sigma,\tau}(C)+Y^{\mathrm{UU}}_{\sigma,\tau}(C)\bigr),
+\]
+\[
+  \widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}
+  :=\sum_{C\in\Phi_{\le\ell_0}}\widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}(C).
+\]
+All expectations below condition on $\omega$ and average over the quantum measurements.
+Fix a clause $C$ with $\mathsf{Tgt}^{\ell,j,t,\alpha,\beta}_C=1$ and a pair $(\sigma,\tau)$.
+For the Lower-Lower sub-sketch, let $M'-1$ be the size of its live set before the query on $C$, conditioned on remaining active.
+The pair-query formula gives
+\[
+\begin{aligned}
+  \E\bigl[Y^{\mathrm{LL}}_{\sigma,\tau}(C)\mid\omega,\text{active before }C\bigr]
+  =\frac M{M'}F_{\sigma,\tau}(C)
+    \1[N_a(C)\ge L_a(\sigma)]\1[N_b(C)\ge L_b(\tau)].
+\end{aligned}
+\]
+By Lemma~\ref{lem:active_prob}, its probability of remaining active before this query, conditioned on $\omega$, is $M'/M$.
+Its contribution is $0$ if it is inactive, so
+\[
+  \E\bigl[Y^{\mathrm{LL}}_{\sigma,\tau}(C)\mid\omega\bigr]
+  =F_{\sigma,\tau}(C)\1[N_a(C)\ge L_a(\sigma)]\1[N_b(C)\ge L_b(\tau)].
+\]
+Apply the same calculation to the other three sub-sketches, using their respective thresholds and live sets.
+Their combined expectation is
+\[
+\begin{aligned}
+  &\E\bigl[Y^{\mathrm{LL}}_{\sigma,\tau}(C)-Y^{\mathrm{LU}}_{\sigma,\tau}(C)
+    -Y^{\mathrm{UL}}_{\sigma,\tau}(C)+Y^{\mathrm{UU}}_{\sigma,\tau}(C)\mid\omega\bigr]\\
+  &\qquad=F_{\sigma,\tau}(C)\Delta_a(C,\sigma)\Delta_b(C,\tau).
+\end{aligned}
+\]
+If neither endpoint satisfies its impersonation condition and the sampled counts on their actual high-degree intervals are below $\kappa$, there is one matching pair of indices when $a=a(C,j)$ and $b=a(C,t)$.
+For that pair, the substituted prefix values satisfy
+\[
+  (\widehat d_u,\widehat p_u)=(\widetilde d_u^{\le C},\widetilde p_u^{\le C}),\qquad
+  (\widehat d_v,\widehat p_v)=(\widetilde d_v^{\le C},\widetilde p_v^{\le C}).
+\]
+These values give the same pseudo-biases; with signs $s_\alpha,s_\beta$, we obtain $F_{\sigma,\tau}(C)=\1[(\widetilde\alpha_j(C),\widetilde\alpha_t(C))=(\alpha,\beta)]$.
+If either interval index is different, all corresponding threshold differences vanish.
+Summing over $\sigma,\tau$ gives
+\[
+\begin{aligned}
+  \E\bigl[\widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}(C)\mid\omega\bigr]
+  =\1\bigl[|C|=\ell,\ a(C,j)=a,\ a(C,t)=b,
+    (\widetilde\alpha_j(C),\widetilde\alpha_t(C))=(\alpha,\beta)\bigr]
+\end{aligned}
+\]
+under these conditions; both sides are $0$ when $\mathsf{Tgt}^{\ell,j,t,\alpha,\beta}_C=0$.
+
+For every fixed degree interval, at most one index makes its threshold difference nonzero.
+On a high-degree interval the ranges
+\[
+  [B_a\sigma+D_a+1,\ B_a\sigma+D_{a+1}]
+\]
+are disjoint; on a low-degree interval the levels $B_a c_1+d_1$ are distinct because $B_a>D_{a+1}$.
+Since $0\le F_{\sigma,\tau}(C)\le1$, this proves
+\[
+  0\le\E\bigl[\widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}(C)\mid\omega\bigr]\le1.
+\]
+Only impersonation or a sampled count at least $\kappa$ on its actual interval can therefore cause a difference from the coordinate.
+Summing over clauses gives
+\begin{equation}
+\label{eq:two-endpoint-remaining-coordinate-total}
+\begin{aligned}
+  &\left|\E\bigl[\widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}\mid\omega\bigr]
+    -P^{(a,b)}_{\ell,j,t,\alpha,\beta}\right|\\
+  &\le\sum_{C\in\Phi_{\le\ell_0}}
+    \mathsf{Tgt}^{\ell,j,t,\alpha,\beta}_C\Bigl(
+      \1[\mathsf{Imp}^{a}_{C,j}]+\1[\mathsf{Imp}^{b}_{C,t}]\\
+  &\qquad\qquad+\1[a=a(C,j),\ 2D_a\ge\kappa,\ s_{v_j(C),a}^{\le C}\ge\kappa]
+      +\1[b=a(C,t),\ 2D_b\ge\kappa,\ s_{v_t(C),b}^{\le C}\ge\kappa]\Bigr).
+\end{aligned}
+\end{equation}

@@ -1,0 +1,265 @@
+\subsection{Estimating the weighted pseudo-snapshot score}
+\label{sec:proof_of_quantum_algorithm}
+
+In this subsection, we prove Lemma~\ref{lem:maxksat-pairwise-estimator}.
+
+We combine the coordinate estimates from all degree levels. Keep $\kappa=\lceil K\eps^{-7}\rceil$, with $K$ large enough for the overflow bound below.
+Choose $K_{\mathrm{base}}$ for the impersonation bound, then $K_\eps$ for the no-wrap tail bounds, and finally $\gamma_\eps$ in $M=\lceil\gamma_\eps m\rceil$ so that queried levels are below $M$ and total shifts are below $M$ on $\mathcal G_1\cap\mathcal G_2$, as required by Lemmas~\ref{lem:good_label_budget} and~\ref{lem:two-endpoint-label-budget}.
+After these parameters are fixed, generate the shared public randomness $\omega=(\{f_a\},g,\{B_a\})$.
+For fixed $\omega$, all pseudo-snapshot coordinates are deterministic; conditional expectations and variances are over quantum measurements.
+
+Run in parallel, during the same pass over the stream, all sketches for the one-endpoint and two-endpoint coordinates, together with the exact classical counters for $M_\ell$, $3\le\ell\le\ell_0$.
+Let $Z$ be their combined output using the score coefficients in Definition~\ref{def:snapshot-score}:
+\[
+\begin{aligned}
+Z
+={}&\sum_a\sum_\alpha q_\alpha\widehat U^{(a)}_{1,1,\alpha}
++\sum_{a,b}\sum_{\alpha,\beta}
+  \bigl(1-(1-q_\alpha)(1-q_\beta)\bigr)
+  \widehat P^{(a,b)}_{2,1,2,\alpha,\beta}\\
+&+\sum_{\ell=3}^{\ell_0}\bigg[
+  c_\ell M_\ell
+  +\sum_{j=1}^\ell\sum_a\sum_\alpha
+    u_{\ell,j}(\alpha)\widehat U^{(a)}_{\ell,j,\alpha}\\
+&\hspace{5em}+\sum_{1\le j<t\le\ell}\sum_{a,b}\sum_{\alpha,\beta}
+    p_{\ell,jt}(\alpha,\beta)
+    \widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}\bigg].
+\end{aligned}
+\]
+
+Recall that $X_a$ counts all positive copies selected by $f_a$. The events in Lemmas~\ref{lem:good_label_budget} and~\ref{lem:two-endpoint-label-budget} give
+\[
+\mathcal G:=\mathcal G_1=\mathcal G_2
+=\bigcap_{a:\,2D_a\ge\kappa}\{X_a\le K_\eps m/D_a\},\qquad
+\Pr_\omega[\mathcal G^c]\le\frac1{160}+\frac1{160}=\frac1{80}.
+\]
+
+Recall that $H_s=\kappa$ when $2D_s\ge\kappa$ and $H_s=D_{s+1}$ otherwise, and
+\[
+\mathsf{Imp}^{s}_{C,r}\iff
+d_{v_r(C)}^{\le C}\in\bigcup_{h=1}^{H_s}[hB_s+D_s+1,hB_s+D_{s+1}].
+\]
+For $C\in\Phi_{\le\ell_0}$ and $r\in[|C|]$, define a set of degree interval indices in $\{0,\ldots,A-1\}$ by
+\[
+\mathcal J(C,r):=
+\{s:D_s<D_{s+1},\ s\neq a(C,r),\ \mathsf{Imp}^{s}_{C,r}\}.
+\]
+Set $\mathcal J'(C,r):=\{a(C,r)\}\cup\mathcal J(C,r)$, and define
+\[
+W_{\mathrm{imp}}:=
+\sum_{C\in\Phi_{\le\ell_0}}\sum_{r=1}^{|C|}|\mathcal J(C,r)|
+=\sum_{C\in\Phi_{\le\ell_0}}\sum_{r=1}^{|C|}
+\sum_{\substack{0\le s<A,\ D_s<D_{s+1}\\s\neq a(C,r)}}
+\1[\mathsf{Imp}^{s}_{C,r}].
+\]
+On $\mathcal G$, every nonzero conditional mean contribution at an incorrect degree interval satisfies the impersonation condition and is counted here.
+Let $W_{\mathrm{of}}$ count the literal copies at endpoints whose sampled positive-prefix count is at least $\kappa$ in their actual high-degree interval:
+\[
+W_{\mathrm{of}}:=
+\sum_{C\in\Phi_{\le\ell_0}}\sum_{r=1}^{|C|}w_{|C|}\,
+\1\!\left[2D_{a(C,r)}\ge\kappa,\
+  s_{v_r(C),a(C,r)}^{\le C}\ge\kappa\right].
+\]
+We first bound the expectations of these counts over $\omega$.
+
+\begin{lemma}[Overflow bound]\label{lem:maxksat-overflow-weight-bound}
+\[
+\mathbb E_\omega[W_{\mathrm{of}}]\le e^{-\Omega(\kappa)}m.
+\]
+\end{lemma}
+
+\begin{proof}
+Fix $C\in\Phi_{\le\ell_0}$ and $r\in[|C|]$, and let $a=a(C,r)$.
+Only intervals with $2D_a\ge\kappa$ contribute. In this case,
+\[
+s_{v_r(C),a}^{\le C}\sim
+\operatorname{Bin}\!\left(p_{v_r(C)}^{\le C},\frac{\kappa}{2D_a}\right),\qquad
+\mathbb E_\omega[s_{v_r(C),a}^{\le C}]
+\le\frac{\kappa D_{a+1}}{2D_a}\le0.6\kappa
+\]
+for $0<\eps\le1/100$ and sufficiently large $K$.
+A Chernoff bound gives $\Pr_\omega[s_{v_r(C),a}^{\le C}\ge\kappa]\le e^{-\Omega(\kappa)}$.
+Equation~\eqref{eq:weighted-total-copies} bounds the total number of literal copies by $m\max_{\ell\in[\ell_0]}\ell w_\ell=O(m)$, so summing these probabilities proves the claim.
+\end{proof}
+
+\begin{lemma}[Impersonation-count bound]\label{lem:maxksat-impersonation-weight}
+There is a constant $\gamma^\ast_\eps>0$ such that
+\[
+\mathbb E_\omega[W_{\mathrm{imp}}]
+\le\gamma^\ast_\eps\frac{m\log(K_{\mathrm{base}}+2)}{K_{\mathrm{base}}}.
+\]
+\end{lemma}
+
+\begin{proof}
+Fix an endpoint $(C,r)$ with $d:=d_{v_r(C)}^{\le C}$, and an index $s\neq a(C,r)$ with $D_s<D_{s+1}$.
+If $\mathsf{Imp}^{s}_{C,r}$ holds, then for some $1\le h\le H_s$,
+\[
+d\in[hB_s+D_s+1,\ hB_s+D_{s+1}]
+\quad\Longleftrightarrow\quad
+B_s\in\left[\frac{d-D_{s+1}}h,\frac{d-D_s-1}h\right].
+\]
+For each $h$, the interval on the right contains $O_\eps(D_{s+1}/h)$ integers, whereas $B_s$ is uniform on $\{\lceil K_{\mathrm{base}}D_{s+1}\rceil,\ldots,\lceil2K_{\mathrm{base}}D_{s+1}\rceil\}$, which contains $\Theta(K_{\mathrm{base}}D_{s+1})$ integers.
+Since $H_s=O_\eps(1)$, a union bound gives
+\[
+\Pr_\omega[\mathsf{Imp}^{s}_{C,r}]
+\le\sum_{h=1}^{H_s}O_\eps\!\left(\frac1{K_{\mathrm{base}}h}\right)
+=O_\eps\!\left(\frac1{K_{\mathrm{base}}}\right).
+\]
+The same condition also requires
+\[
+D_{s+1}<d\le H_s(2K_{\mathrm{base}}D_{s+1}+1)+D_{s+1}.
+\]
+On high-degree intervals $H_s=\kappa$, so
+\[
+D_{s+1}\in\left[\frac{d}{2K_{\mathrm{base}}\kappa+O_\eps(1)},\ d\right).
+\]
+The geometric degree levels give $O_\eps(\log(K_{\mathrm{base}}+2))$ such intervals.
+On low-degree intervals $D_{s+1}<\kappa=O_\eps(1)$, so there are only $O_\eps(1)$ intervals.
+Thus
+\[
+\mathbb E_\omega[|\mathcal J(C,r)|]
+=\sum_{\substack{0\le s<A,\ D_s<D_{s+1}\\s\neq a(C,r)}}
+\Pr_\omega[\mathsf{Imp}^{s}_{C,r}]
+=O_\eps\!\left(\frac{\log(K_{\mathrm{base}}+2)}{K_{\mathrm{base}}}\right).
+\]
+Summing over at most $\ell_0m$ endpoints proves the claim.
+\end{proof}
+
+The same count of possible degree intervals gives a deterministic bound: there is a constant $\gamma^{\mathrm{sc}}_\eps>0$ such that
+\begin{equation}\label{eq:maxksat-visible-scale-count}
+|\mathcal J'(C,r)|\le\gamma^{\mathrm{sc}}_\eps\log(K_{\mathrm{base}}+2)
+\qquad\text{for every }(C,r).
+\end{equation}
+
+We now fix $\omega\in\mathcal G$ and bound the conditional mean of $Z$.
+Lemma~\ref{lem:nonwrapping-threshold-invariant} ensures that each queried label is live exactly when its threshold inequality is true, so the coordinate bounds from Sections~\ref{subsec:One-endpoint_estimation} and~\ref{subsec:Two-endpoint_estimation} apply.
+
+\paragraph{One-endpoint contribution.}
+By~\eqref{eq:one-endpoint-high-coordinate}, high-degree one-endpoint outputs have their exact coordinate as conditional mean, and the counters $M_\ell$ are exact.
+For a low-degree coordinate, \eqref{eq:one-endpoint-low-coordinate-total} gives
+\[
+\left|\mathbb E[\widehat U^{(a)}_{\ell,j,\alpha}\mid\omega]-U^{(a)}_{\ell,j,\alpha}\right|
+\le\sum_{C\in\Phi_{\le\ell_0}}
+\mathsf{Tgt}^{\ell,j,\alpha}_{C}\,\1[\mathsf{Imp}^{a}_{C,j}].
+\]
+Here $\mathsf{Tgt}^{\ell,j,\alpha}_{C}=\1[|C|=\ell,\ s_j(C)=s_\alpha]$.
+Each $(C,r,a)$ with $a\in\mathcal J(C,r)$ occurs for at most $L$ bucket labels.
+The fixed score coefficients therefore bound the total one-endpoint error by $\gamma^{\mathrm{one}}_\eps W_{\mathrm{imp}}$ for a constant $\gamma^{\mathrm{one}}_\eps>0$.
+
+\paragraph{Two-endpoint error from incorrect interval pairs.}
+In the endpoint formulas of Section~\ref{subsec:Two-endpoint_estimation}, a nonzero threshold difference requires its interval index to belong to $\mathcal J'(C,r)$.
+Consequently, for fixed $C$ with $|C|=\ell$, positions $1\le j<t\le\ell$, and labels $\alpha,\beta$,
+\[
+\mathbb E[\widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}(C)\mid\omega]\neq0
+\quad\Longrightarrow\quad
+(a,b)\in\mathcal J'(C,j)\times\mathcal J'(C,t).
+\]
+When $(a,b)\neq(a(C,j),a(C,t))$, the target contribution of $C$ is zero and at least one queried index belongs to $\mathcal J$.
+The endpoint formulas in Section~\ref{subsec:Two-endpoint_estimation} give
+\[
+0\le\mathbb E[\widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}(C)\mid\omega]\le1.
+\]
+By~\eqref{eq:maxksat-visible-scale-count}, the number of these pairs is at most
+\[
+\begin{aligned}
+&|\mathcal J(C,j)|\,|\mathcal J'(C,t)|
+ +|\mathcal J(C,t)|\,|\mathcal J'(C,j)|\\
+&\qquad\le\gamma^{\mathrm{sc}}_\eps\log(K_{\mathrm{base}}+2)
+\bigl(|\mathcal J(C,j)|+|\mathcal J(C,t)|\bigr).
+\end{aligned}
+\]
+Summing over clauses, positions, and labels with the fixed score coefficients bounds the total error from incorrect interval pairs by
+\[
+\gamma^{\mathrm{two}}_\eps\log(K_{\mathrm{base}}+2)\,W_{\mathrm{imp}}
+\]
+for a constant $\gamma^{\mathrm{two}}_\eps>0$.
+
+\paragraph{Overflow contribution.}
+The incorrect interval pairs have already been counted above.
+For $|C|=\ell$, $a=a(C,j)$, and $b=a(C,t)$, the overflow error in~\eqref{eq:two-endpoint-remaining-coordinate-total} satisfies
+\[
+\begin{aligned}
+&\left|\mathbb E[\widehat P^{(a,b)}_{\ell,j,t,\alpha,\beta}(C)\mid\omega]
+-\1[(\widetilde\alpha_j(C),\widetilde\alpha_t(C))=(\alpha,\beta)]\right|\\
+&\quad\le\1[2D_a\ge\kappa,\ s_{v_j(C),a}^{\le C}\ge\kappa]
++\1[2D_b\ge\kappa,\ s_{v_t(C),b}^{\le C}\ge\kappa].
+\end{aligned}
+\]
+Each endpoint occurs in only constantly many position and label choices, and $w_\ell\ge1$.
+Thus the fixed score coefficients bound this remaining error by $\gamma_{\mathrm{of}}W_{\mathrm{of}}$ for a constant $\gamma_{\mathrm{of}}>0$.
+The constants $\gamma^\ast_\eps$, $\gamma^{\mathrm{sc}}_\eps$, $\gamma^{\mathrm{one}}_\eps$, and $\gamma^{\mathrm{two}}_\eps$ may depend on $\eps$, $\kappa$, the fixed rounding profile and coefficients, but not on $K_{\mathrm{base}}$; $\gamma_{\mathrm{of}}$ depends only on the fixed score coefficients.
+Together, these bounds give a constant $\gamma_{\mathrm{imp}}=O_\eps(\log(K_{\mathrm{base}}+2))$, with the implicit constant independent of $K_{\mathrm{base}}$, such that for every $\omega\in\mathcal G$,
+\begin{equation}\label{eq:maxksat-one-run-mean}
+\left|\mathbb E[Z\mid\omega]
+-L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))\right|
+\le\gamma_{\mathrm{imp}}W_{\mathrm{imp}}+\gamma_{\mathrm{of}}W_{\mathrm{of}}.
+\end{equation}
+
+The choices of $K_{\mathrm{base}}$ and $K$ above can ensure, by Lemmas~\ref{lem:maxksat-impersonation-weight} and~\ref{lem:maxksat-overflow-weight-bound}, that
+\[
+\gamma_{\mathrm{imp}}\mathbb E_\omega[W_{\mathrm{imp}}]\le\frac{\eps m}{320},\qquad
+\gamma_{\mathrm{of}}\mathbb E_\omega[W_{\mathrm{of}}]\le\frac{\eps m}{320}.
+\]
+Indeed, the first bound is $O_\eps(m\log^2(K_{\mathrm{base}}+2)/K_{\mathrm{base}})$, and the second is $e^{-\Omega(\kappa)}m$ times a fixed constant.
+Define
+\[
+\mathcal S:=\left\{W_{\mathrm{imp}}\le\frac{\eps m}{4\gamma_{\mathrm{imp}}}\right\},\qquad
+\mathcal O:=\left\{W_{\mathrm{of}}\le\frac{\eps m}{4\gamma_{\mathrm{of}}}\right\}.
+\]
+Markov's inequality gives $\Pr_\omega[\mathcal S^c],\Pr_\omega[\mathcal O^c]\le1/80$.
+For every $\omega\in\mathcal G\cap\mathcal S\cap\mathcal O$, Equation~\eqref{eq:maxksat-one-run-mean} gives
+\begin{equation}\label{eq:maxksat-one-run-mean-small}
+\left|\mathbb E[Z\mid\omega]
+-L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))\right|
+\le\frac{\eps m}{2}.
+\end{equation}
+
+There are $O_\eps(A)$ one-endpoint coordinates and $O_\eps(A^2)$ two-endpoint coordinates, with $A=O_\eps(\log(n+m))$.
+Each coordinate combines $O_\eps(1)$ sub-sketches, whose outputs have absolute value at most $M=O_\eps(m)$.
+For fixed $\omega$, different coordinates use separate work registers and have independent measurement outputs. Therefore
+\begin{equation}\label{eq:maxksat-one-run-var}
+\operatorname{Var}(Z\mid\omega)=O_\eps(m^2\log^2(n+m))
+\qquad(\omega\in\mathcal G).
+\end{equation}
+
+Run $R=\gamma^{\mathrm{rep}}_\eps\log^2(n+m)$ copies in parallel with separate work registers and the same $\omega$, and set
+\[
+Z':=\frac1R\sum_{r=1}^R Z_r.
+\]
+Their outputs are independent conditional on $\omega$, so for every $\omega\in\mathcal G$,
+\[
+\mathbb E[Z'\mid\omega]=\mathbb E[Z\mid\omega],\qquad
+\operatorname{Var}(Z'\mid\omega)
+=\frac1R\operatorname{Var}(Z\mid\omega)
+=\frac{O_\eps(m^2)}{\gamma^{\mathrm{rep}}_\eps}.
+\]
+For sufficiently large $\gamma^{\mathrm{rep}}_\eps$, Chebyshev's inequality gives
+\[
+\Pr\left[\left|Z'-\mathbb E[Z\mid\omega]\right|>\frac{\eps m}{4}
+\ \middle|\ \omega\right]\le\frac1{40}
+\qquad(\omega\in\mathcal G).
+\]
+For $\omega\in\mathcal G\cap\mathcal S\cap\mathcal O$, Equation~\eqref{eq:maxksat-one-run-mean-small} gives
+\[
+\left|Z'-L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))\right|
+\le\left|Z'-\mathbb E[Z\mid\omega]\right|+\frac{\eps m}{2}.
+\]
+Averaging the conditional probability over $\omega$ and taking a union bound gives
+\[
+\begin{aligned}
+&\Pr\left[\left|Z'-L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))\right|>\eps m\right]
+\le\Pr_\omega[\mathcal G^c]+\Pr_\omega[\mathcal S^c]+\Pr_\omega[\mathcal O^c]+\frac1{40}\le\frac1{16}.
+\end{aligned}
+\]
+Thus $\widehat L_{\le\ell_0}:=Z'$ succeeds with probability at least $15/16$.
+
+\paragraph{Space complexity.}
+A high-degree one-endpoint coordinate uses $2\kappa+2=O_\eps(1)$ sub-sketches.
+On a low-degree interval, $D_{a+1}=O_\eps(1)$, so there are $O_\eps(1)$ candidate pairs $(d,c)$.
+A two-endpoint coordinate uses $4|\Sigma_a||\Sigma_b|=O_\eps(1)$ sub-sketches; $\Sigma_a,\Sigma_b$ contain sampled counts on high-degree intervals and candidate pairs $(d,c)$ on low-degree intervals.
+Each sub-sketch uses $O(\log(n+m))$ qubits and, after a successful query, $O(\log(n+m))$ classical bits to store its variables, indices, and suffix degrees.
+The $O_\eps(A^2)$ coordinates and $R=O_\eps(\log^2(n+m))$ repetitions therefore use
+\[
+O_\eps\!\bigl(A^2R\log(n+m)\bigr)=O_\eps\!\bigl(\log^5(n+m)\bigr)
+\]
+qubits and the same order of classical bits.

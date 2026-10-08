@@ -1,0 +1,44 @@
+\subsection{Quantum register}
+
+Let $\mathcal U$ be the set of basis labels other than $\bot$, distinct from the literal labels $\alpha\in\sgnset\times[L]$.
+A basis state is \textit{live} if its amplitude is nonzero; we use its label to refer to the state.
+For the set $T\subseteq\mathcal U$ of live labels, write
+\[
+  \ket{Q(T)}:=\frac{\ket{\bot}+\sum_{x\in T}\ket{x}}{\sqrt{1+|T|}},
+\]
+where $\ket{\bot}$ is a fixed anchor state whose amplitude is retained after every zero query outcome, including when $T=\emptyset$.
+Let $\gamma_\eps>0$ be a sufficiently large constant. In all sketches below, we will use the quantum register with size $$M:=\lceil  \gamma_{\eps} m \rceil.$$ 
+
+We use the following operations.
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.3em,topsep=0.3em]
+  \item \emph{Permutation.} For a permutation $\pi$ of $\mathcal U$, apply the unitary
+  $\ket{x}\mapsto\ket{\pi(x)}$, fixing $\ket{\bot}$.
+
+  \item \emph{Single-query.} For $x\in\mathcal U$, measure with the projectors
+  $\ket{x}\!\bra{x}$ and $I-\ket{x}\!\bra{x}$.
+  Output $\zeta_x=1$ on the first outcome and stop the quantum updates.
+  On the second outcome, output $0$ and continue with $\ket{Q(T\setminus\{x\})}$.
+  Thus
+  \begin{equation}\label{eq:single-query-mean}
+    \Pr[\zeta_x=1\mid\Qstate{T}]
+    =\mathbb E[\zeta_x\mid\Qstate{T}]
+    =\frac{\1[x\in T]}{1+|T|}.
+  \end{equation}
+
+  \item \emph{Pair-query.} For distinct $x,y\in\mathcal U$, set
+  \[
+    \ket{\psi^{\pm}_{x,y}}:=\frac{\ket{x}\pm\ket{y}}{\sqrt2}.
+  \]
+  Measure with the projectors onto these two states and their orthogonal complement.
+  Output $\chi_{x,y}=\pm1$ on the corresponding outcome and stop the quantum updates.
+  On outcome $0$, continue with $\ket{Q(T\setminus\{x,y\})}$.
+  The probabilities and expectation are
+  \[
+    \Pr[\chi_{x,y}=\pm1\mid\Qstate{T}]
+    =\frac{(\1[x\in T]\pm\1[y\in T])^2}{2(1+|T|)},
+  \]
+  \begin{equation}\label{eq:pair-query-mean}
+    \mathbb E[\chi_{x,y}\mid\Qstate{T}]
+    =\frac{2\1[x\in T]\1[y\in T]}{1+|T|}.
+  \end{equation}
+\end{enumerate}

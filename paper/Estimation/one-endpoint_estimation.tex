@@ -1,0 +1,474 @@
+\subsection{One-endpoint estimation} \label{subsec:One-endpoint_estimation}
+
+Fix a one-endpoint coordinate $U^{(a)}_{\ell,j,\alpha}$ with label $\alpha=(s_\alpha,i_\alpha)$. It is \textit{high-degree} when $D_a\ge\kappa/2$ and \textit{low-degree} otherwise. We handle these cases in Sections~\ref{sec:highdegree} and~\ref{Sec:lowdegree}, respectively.
+
+We test the length and literal sign as each clause arrives and use quantum queries to test its prefix counts. A successful query selects one clause; the sub-sketch then counts its exact suffix degrees and uses them with the candidate prefix values to test the bucket. Its output is scaled by $M$ or $M/2$ as specified below.
+
+\paragraph{Prefix counts.}
+Recall that $B_a>D_{a+1}+1$. For nonnegative integers $d,c$, define
+\[
+  \Gamma_a(d,c):=d+B_a c.
+\]
+In a high-degree sketch, $c$ is the sampled positive-prefix count $s_{v,a}^{\le C}$; in a low-degree sketch, it is the exact positive-prefix degree $p_v^{\le C}$.
+
+For every $q\in\{0,\ldots,\kappa-1\}$, integer $c\ge0$, and degree $D_a<d\le D_{a+1}$,
+\begin{equation}\label{eq:one-endpoint-ordinary-high-id}
+\1[\Gamma_a(d,c)\ge B_a q+D_a+1]
+-\1[\Gamma_a(d,c)\ge B_a q+D_{a+1}+1]
+=
+\1[c=q].
+\end{equation}
+Likewise, for integers $D_a<d,d_0\le D_{a+1}$ and $c,c_0\ge0$,
+\begin{equation}\label{eq:one-endpoint-ordinary-low-id}
+\1[\Gamma_a(d,c)\ge B_a c_0+d_0]
+-\1[\Gamma_a(d,c)\ge B_a c_0+d_0+1]
+=
+\1[d=d_0,\ c=c_0].
+\end{equation}
+For every integer $q\ge1$, the same bound on $B_a$ gives
+\begin{equation}\label{eq:one-endpoint-cumulative-high-id}
+\1[\Gamma_a(d,c)\ge qB_a]=\1[c\ge q]
+\qquad(D_a<d\le D_{a+1},\ c\ge0).
+\end{equation}
+
+\paragraph{Impersonation.}
+Set
+\[
+H_a:=
+\begin{cases}
+\kappa, & D_a\ge\kappa/2,\\
+D_{a+1}, & D_a<\kappa/2.
+\end{cases}
+\]
+We say that an endpoint with prefix degree $d$ \emph{impersonates degree interval $a$} if $d>D_{a+1}$ and
+\begin{equation}\label{eq:scale-a-impersonation-def}
+d\in
+\bigcup_{h=1}^{H_a}
+\bigl[hB_a+D_a+1,\ hB_a+D_{a+1}\bigr].
+\end{equation}
+Let $\mathsf{Imp}^{a}_{C,r}$ denote this event for endpoint $(C,r)$. The condition includes every nonzero threshold difference from outside the queried degree interval, although an endpoint satisfying it may give a zero difference.
+
+\begin{lemma}[Impersonation]\label{lem:low-degree-singleton-impersonation}
+Assume $D_a<\kappa/2$. Fix a queried low-degree level $B_a c_0 +d_0$, where $D_a<d_0\le D_{a+1}$ and $0\le c_0 \le d_0$. Let $d^\ast,c^\ast$ be nonnegative integers. If
+\[
+\Gamma_a(d^\ast,c^\ast)=B_a c_0 +d_0
+\]
+and $d^\ast\notin(D_a,D_{a+1}]$, then $d^\ast>D_{a+1}$ and the endpoint with prefix degree $d^\ast$ impersonates degree interval $a$.
+\end{lemma}
+
+\begin{proof}
+If $d^\ast\le D_a$, equality modulo $B_a$ gives $d^\ast=d_0>D_a$, a contradiction. Thus $d^\ast>D_{a+1}$. Writing $h:=c_0-c^\ast$, we have
+\[
+d^\ast=hB_a+d_0>D_{a+1},\qquad
+1\le h\le c_0\le d_0\le D_{a+1}=H_a.
+\]
+Since $D_a<d_0\le D_{a+1}$, this gives
+$d^\ast\in[hB_a+D_a+1,hB_a+D_{a+1}]$, as required.
+\end{proof}
+
+\subsubsection{High-degree case} \label{sec:highdegree}
+
+For each $q\in\{0,1,\ldots,\kappa\}$, we maintain an independent
+\textit{$q$-Sketch}. The case $q=\kappa$ accounts for all endpoints with
+$s_{v,a}^{\le C}\ge\kappa$ through the capped value
+$\min\{s_{v,a}^{\le C},\kappa\}$, so high-degree one-endpoint coordinates need no
+separate overflow term.
+
+Each $q$-Sketch consists of two independent sub-sketches, called the \textit{Upper-$q$-Sketch} and the \textit{Lower-$q$-Sketch}. Their outputs are combined to give an estimate for the high-degree coordinate.
+
+The quantum register uses the following basis labels. We use the global register size $M=\lceil \gamma_\eps m\rceil$, with $\gamma_\eps$ chosen large enough for the fixed $\eps>0$.
+\begin{enumerate}
+    \item The fixed anchor basis state $\ket{\bot}$;
+    \item Spare labels: $S_1,\ldots, S_M$;
+    \item $H$-labels: $H(v,t)$, where $v\in [n]$, $t\in [M]$;
+    \item $E$-labels: $E(v,t)$, where $v\in [n]$, $t\in [M]$;
+    \item $H$-garbage-labels: $G_{H}(v,t)$,where $v\in [n]$, $t\in [M]$;
+    \item $E$-garbage-labels: $G_{E}(v,t)$,where $v\in [n]$, $t\in [M]$;
+\end{enumerate}
+Besides, we maintain a pointer $\mathcal{P}$ for the spare labels in a classical register, which costs $O(\log M)=O(\log m)$ bits. Because the basis state is specified by a variable index and a level in $[M]$, this quantum register costs $O(\log (nm))=O(\log n )$ qubits, for $m=\mathrm{poly} (n)$.
+
+\paragraph{What the labels are for.}
+The spare labels make each update a permutation and are not queried. Each literal copy on $u$ applies one shift to the $H(u,\cdot)$ labels, which are used to test prefix total degree.
+
+The $E$-labels are used to test thresholds of
+\[
+\Gamma_a(d_u^{\le C},s_{u,a}^{\le C})
+=d_u^{\le C}+B_a s_{u,a}^{\le C}.
+\]
+Each literal copy applies one shift, and each selected positive copy applies $B_a$ additional shifts. The garbage labels make these updates permutations on a finite set of basis labels.
+
+\begin{definition}[Increment operation]
+Given a variable $u\in[n]$ and the current  pointer $\mathcal P$, define $\inc{H,u,1}$ as follows.
+\begin{enumerate}
+    \item Apply the cyclic permutation of basis labels whose cycle is
+    \[
+    S_{\mathcal P}\to H(u,1)\to H(u,2)\to \cdots \to H(u,M)
+    \to G_H(u,M)\to \cdots \to G_H(u,1)\to S_{\mathcal P}.
+    \]
+    We call this one elementary shift. Its quantum part is unitary because it is
+    a permutation of basis labels.
+    \item Move the pointer to the next spare label. If $\mathcal P<M$,
+set $\mathcal P\leftarrow \mathcal P+1$. If $\mathcal P=M$, set
+$\mathcal P\leftarrow 1$. Thus the pointer runs through
+$S_1,S_2,\ldots,S_M$ and then starts again from $S_1$.
+\end{enumerate}
+For any integer $r\ge1$, $\inc{H,u,r}$ means repeating this elementary shift $r$ times, updating $\mathcal P$ after each repetition, that is, \[
+  \mathrm{inc}(H,u,r):=\underbrace{\mathrm{inc}(H,u,1)\circ\cdots\circ\mathrm{inc}(H,u,1)}_{r\text{ times}}.
+\]
+For $E$-labels, we use the same shift operation on the chain $E(u,\cdot)$; in particular, $\inc{E,u,B_a}$ means applying this one-step shift $B_a$ times, so it advances $\mathcal P$ by $B_a$.
+\end{definition}
+
+We describe the Lower-$q$-Sketch for $q\ge1$ first, then give the changes for the other sub-sketches. Set $\mathsf{Tgt}^{\ell,j,\alpha}_{C}:=0$ if $|C|\ne\ell$; otherwise set
+\[
+\mathsf{Tgt}^{\ell,j,\alpha}_{C}:=\1[s_j(C)=s_\alpha].
+\]
+
+
+%\subsubsection*{Algorithm Description}
+
+
+\medskip
+
+Now we are ready to describe our algorithm.
+\paragraph{Initialization.} The quantum register is initialized as: 
+\[
+  \Qstate{T_0}
+  =
+  \frac{|\perp\rangle+|S_1\rangle+\cdots+|S_{M-1}\rangle}{\sqrt M},
+\]
+where $T_0:=\{S_1,S_2,\dots,S_{M-1}\}$ is the initial live set.
+Initialize $\mathcal{P}=1$.
+
+When a clause $C$ arrives, the quantum algorithm performs two types of operations in turn: update and query.
+
+\paragraph{Update.} Decompose the clause $C$ into literal copies and handle them one by one. For each literal copy $(C,r,h)$, set $u:=v_r(C)$ and let $T$ be the live set. Perform the following increment operations in turn. Each operation applies a unitary permutation to the quantum register and updates the pointer as specified above.
+
+\medskip
+\textbf{Step-1.} $
+      \mathrm{inc}(H,u,1).
+    $
+
+\medskip    
+\textbf{Step-2.}      $
+      \mathrm{inc}(E,u,1).
+    $
+    
+\medskip    
+\textbf{Step-3.} If this literal copy $(C,r,h)$ is positive and $f_a(C,r,h)=1$,  perform   $
+      \mathrm{inc}(E,u,B_a).
+    $ 
+
+\paragraph{Query.} If $\mathsf{Tgt}^{\ell,j,\alpha}_{C}=0$, do nothing and end. Otherwise, write $v:=v_j(C)$ for its variable index. Perform the pair-query $$(H(v,D_{a}+1),  E(v,qB_a ))$$ on the current quantum register. Denote the output of pair-query by $\chi_{C}^{\mathrm L}\in \{-1,0,+1\}$.    
+
+\medskip
+\textbf{Branch 1:} if $\chi_{C}^{\mathrm L} = 0$, we say this query \textit{fails}. Then do nothing and end.
+
+\medskip
+\textbf{Branch 2:} if  $\chi_{C}^{\mathrm L}\in \{-1,+1\}$, we say this query is \textit{successful}. Then this quantum register performs no further updates or queries. During the rest of the stream, the sub-sketch only keeps the following classical data: \begin{enumerate}
+    \item store the variable $v$ and clause $C$;
+    \item store the nonzero measurement outcome $\chi_C^{\mathrm L}$;
+    \item store $q$;
+    \item in the following streaming of clauses, count the suffix total degree  $d_{v}^{>C}$ and suffix positive count $p_{v}^{>C}$ accurately.
+\end{enumerate}
+The classical part costs $O(\log (n+m))$ bits. We say a sub-sketch is \textit{active} if the quantum part has not ended, equivalently, if it has not entered Branch 2 yet.
+
+\paragraph{Output.} If a high-degree sub-sketch succeeds on $C$, then after the rest of the stream has been processed it has the exact suffix counts $p_v^{>C}$ and $d_v^{>C}$. For every $r\in\{0,\ldots,\kappa\}$, define
+\[
+F_r(C)
+:=
+\1 \left[
+\clip
+\left(
+\frac{2\left(\frac{2D_a}{\kappa}r+p_v^{>C}\right)}
+     {D_a+d_v^{>C}}
+-1+g(v)
+\right)
+\in I_{i_\alpha}
+\right].
+\]
+Finally,  the Lower-$q$-Sketch $(q\ge 1)$ outputs 
+\[
+  Y_q^{\mathrm L}(C):=\frac M2\cdot \chi_{C}^{\mathrm L}\cdot (F_q(C)-F_{q-1}(C)). 
+\]
+In all other cases,  the Lower-$q$-Sketch $(q\ge 1)$ outputs $0$.
+
+\medskip
+
+For the other sub-sketches, only the following operations and outputs change.
+
+\paragraph{Upper-$q$-Sketch ($q\ge 1$).} In the query step, we perform the pair-query on \[
+(H(v,D_{a+1}+1), 
+E(v,qB_a ))
+\]
+rather than $(H(v,D_{a}+1), E(v,qB_a ))$ for Lower-$q$-Sketch.
+
+Similarly, define $\chi^{\mathrm U}_{C}\in \{-1,0,1\}$ for the output of the pair-query. In its successful branch, the Upper-$q$-Sketch stores the nonzero value of $\chi_C^{\mathrm U}$ together with the same classical data. For Branch $2$, define the final output as
+\[
+  Y_q^{\mathrm U}(C):=\frac M2\cdot \chi_{C}^{\mathrm U}\cdot (F_q(C)-F_{q-1}(C)).
+\]
+In all other cases, it outputs  $0$.
+
+\paragraph{Lower-$0$-Sketch and Upper-$0$-Sketch.} These sub-sketches use the anchor, spare labels, $H$-labels, and $H$-garbage-labels, and apply only $\inc{H,u,1}$.
+
+In the query step, the Lower-$0$-Sketch performs a single-query on $H(v,D_a+1)$ and the Upper-$0$-Sketch performs a single-query on $
+H(v,D_{a+1}+1)$.
+
+Define $\xi_{C}^{\mathrm L}$ and $\xi_{C}^{\mathrm U}$ to denote the outputs of the single-query from Lower-$0$-Sketch and  Upper-$0$-Sketch  respectively. In a successful branch the sketch stores this nonzero output, which equals $1$, and the same classical data and suffix counters as above. Define the final outputs as \[
+  Y_0^{\mathrm L}(C):=M\cdot \xi_{C}^{\mathrm L}\cdot F_0(C),
+  \qquad
+  Y_0^{\mathrm U}(C):=M\cdot \xi_{C}^{\mathrm U}\cdot F_0(C),
+\]
+In all other cases, output $0$.
+
+
+
+
+
+
+
+\medskip
+Next, we prove the correctness of the algorithm and show that its output provides a good estimate of the coordinate $U^{(a)}_{\ell,j,\alpha}$.
+
+
+\paragraph{Correctness.}
+Fix a sub-sketch and a label $F(u,t)$ that it queries, where $F$ is $H$ or $E$. For this fixed family and variable, the queried level $t$ is fixed, and at least one ordinary $+1$ update occurs between consecutive queries of $F(u,t)$. Immediately before a query, let $d_u$ count the ordinary literal-copy updates applied to this chain so far and $c_u$ count its additional $B_a$-shift updates. The elementary shifts inside a $B_a$-shift update are not counted again in $d_u$. Set $c_u=0$ for a family with no additional updates.
+
+\begin{samepage}
+\begin{lemma}\label{lem:nonwrapping-threshold-invariant}
+Suppose $1\le t<M$ and, before each query of $F(u,t)$, the sub-sketch has used fewer than $M$ elementary shifts in total. Then, immediately before each such query,
+\[
+F(u,t)\in T
+\quad\Longleftrightarrow\quad
+d_u+B_a c_u\ge t.
+\]
+\end{lemma}
+
+The proof of Lemma~\ref{lem:nonwrapping-threshold-invariant} is in Appendix~\ref{app:one-endpoint-threshold-proof}.
+\end{samepage}
+
+\begin{remark}
+Lemma~\ref{lem:nonwrapping-threshold-invariant} also applies to the $Z_1$- and $Z_2$-labels in Section~\ref{subsec:Two-endpoint_estimation}: each chain has a fixed queried level, and each queried clause updates that chain before the query.
+\end{remark}
+
+The next lemma bounds both the queried levels and the number of shifts, including the low-degree sketches described below.
+
+\begin{lemma}[No-wrap event for one-endpoint sketches]\label{lem:good_label_budget}
+For each high-degree interval $a$, let $X_a$ count all positive literal copies selected by $f_a$ over the whole stream. For a sufficiently large constant $K_\eps$, define
+\[
+\mathcal G_1:=
+\bigcap_{a:\,D_a\ge\kappa/2}
+\left\{X_a\le K_\eps\frac{m}{D_a}\right\}.
+\]
+Then $\Pr[\mathcal G_1]\ge1-1/160$. Choosing $\gamma_\eps$ in $M=\lceil\gamma_\eps m\rceil$ sufficiently large ensures that every queried level satisfies $1\le t<M$ and, on $\mathcal G_1$, every one-endpoint sub-sketch performs fewer than $M$ elementary shifts over the whole stream.
+\end{lemma}
+
+The proof of Lemma~\ref{lem:good_label_budget} is in Appendix~\ref{app:one-endpoint-budget-proof}.
+
+The updates remain permutations even if $\mathcal G_1$ fails. On $\mathcal G_1$, Lemma~\ref{lem:nonwrapping-threshold-invariant} identifies every queried label with its prefix-count threshold.
+
+\paragraph{Estimation.}
+Fix public randomness $\omega=(\{f_a\},g,\{B_a\})$ satisfying $\mathcal G_1$. All expectations below average over the quantum measurements conditional on $\omega$. The lower and upper sketches select the degree interval; a telescoping sum over $q$ then tests the bucket.
+
+Extend every sub-sketch output by $0$ to clauses with $\mathsf{Tgt}^{\ell,j,\alpha}_{C}=0$. For each clause $C$, define
+\begin{equation}\label{eq:estimation}
+\widehat U^{(a)}_{\ell,j,\alpha}(C)
+:=
+Y_0^{\mathrm L}(C)-Y_0^{\mathrm U}(C)
++\sum_{q=1}^{\kappa}\bigl(Y_q^{\mathrm L}(C)-Y_q^{\mathrm U}(C)\bigr),
+\end{equation}
+and set
+\[
+\widehat U^{(a)}_{\ell,j,\alpha}
+:=\sum_{C\in\Phi_{\le\ell_0}}\widehat U^{(a)}_{\ell,j,\alpha}(C).
+\]
+Fix a clause $C$ with $\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1$ and write $v:=v_j(C)$. When $a=a(C,j)$, the high-degree prefix approximations give
+\[
+\widetilde d_v^{\le C}=D_a,\qquad
+\widetilde p_v^{\le C}
+=\frac{2D_a}{\kappa}\min\{s_{v,a}^{\le C},\kappa\}.
+\]
+Using $F_q(C)$ defined in the output step, we obtain
+\begin{equation}\label{eq:Fq}
+\begin{aligned}
+\1[\widetilde\alpha_j(C)=\alpha]
+&=F_{\min\{s_{v,a}^{\le C},\kappa\}}(C)\\
+&=F_0(C)+\sum_{q=1}^{\kappa}
+\bigl(F_q(C)-F_{q-1}(C)\bigr)\1[s_{v,a}^{\le C}\ge q].
+\end{aligned}
+\end{equation}
+
+The following probability cancels the normalization of the active quantum register.
+
+\begin{lemma}[Active probability]\label{lem:active_prob}
+Fix a sub-sketch and public randomness $\omega$. Conditioned on this sub-sketch being active just before its query on $C$, let $T$ be its live set and $M'=1+|T|$. Then
+\[
+\Pr[\text{this sub-sketch is active just before its query on }C\mid\omega]
+=\frac{M'}{M}.
+\]
+\end{lemma}
+
+\begin{proof}
+Once $\omega$ is fixed, the updates and previous failed queries determine the live set on the active branch. List the earlier queries as $\text{Query}_1,\ldots,\text{Query}_r$, and let $M_i$ be one plus the number of live labels just before $\text{Query}_i$ on this branch. Set $M_{r+1}=M'$; initially $M_1=M$.
+
+A failed query deletes zero, one, or two live labels. Updates preserve their number, so the conditional probability of remaining active is
+\[
+\Pr[\text{active after }\text{Query}_i\mid\omega,\ \text{active before }\text{Query}_i]
+=1-\frac{M_i-M_{i+1}}{M_i}
+=\frac{M_{i+1}}{M_i}.
+\]
+Multiplying these probabilities gives $M'/M$.
+\end{proof}
+
+\paragraph{For $q\in\{1,\ldots,\kappa\}$.}
+Conditioned on the Lower-$q$-Sketch being active before $C$, let $T$ be its live set and $M'=1+|T|$. By \eqref{eq:pair-query-mean}, its pair-query on $(H(v,D_a+1),E(v,qB_a))$ gives
+\[
+\mathbb E[\chi_C^{\mathrm L}\mid\omega,\ \text{Lower-$q$-Sketch active before }C]
+=\frac{2}{M'}\1[H(v,D_a+1)\in T]\1[E(v,qB_a)\in T].
+\]
+Lemma~\ref{lem:nonwrapping-threshold-invariant} replaces the live-label indicators by prefix-count inequalities. Multiplying the query mean by $\frac M2(F_q(C)-F_{q-1}(C))$ and the active probability $M'/M$ from Lemma~\ref{lem:active_prob} gives
+\[
+\begin{aligned}
+\mathbb E[Y_q^{\mathrm L}(C)\mid\omega]
+={}&\bigl(F_q(C)-F_{q-1}(C)\bigr)
+\1[\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1,\ d_v^{\le C}\ge D_a+1]\\
+&\cdot\1[\Gamma_a(d_v^{\le C},s_{v,a}^{\le C})\ge qB_a].
+\end{aligned}
+\]
+Applying the same argument separately to the Upper-$q$-Sketch gives
+\[
+\begin{aligned}
+\mathbb E[Y_q^{\mathrm U}(C)\mid\omega]
+={}&\bigl(F_q(C)-F_{q-1}(C)\bigr)
+\1[\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1,\ d_v^{\le C}\ge D_{a+1}+1]\\
+&\cdot\1[\Gamma_a(d_v^{\le C},s_{v,a}^{\le C})\ge qB_a].
+\end{aligned}
+\]
+Their difference is zero outside $(D_a,D_{a+1}]$. Inside this interval, \eqref{eq:one-endpoint-cumulative-high-id} gives $\Gamma_a(d_v^{\le C},s_{v,a}^{\le C})\ge qB_a\iff s_{v,a}^{\le C}\ge q$, so
+\begin{equation}\label{eq:bigq}
+\begin{aligned}
+\mathbb E[Y_q^{\mathrm L}(C)-Y_q^{\mathrm U}(C)\mid\omega]
+={}&\bigl(F_q(C)-F_{q-1}(C)\bigr)\\
+&\cdot\1[\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1,\ D_a<d_v^{\le C}\le D_{a+1},\ s_{v,a}^{\le C}\ge q].
+\end{aligned}
+\end{equation}
+Thus high-degree one-endpoint estimation has no impersonation error.
+
+\paragraph{For $q=0$.}
+For the Lower-$0$-Sketch with live set $T$ and $M'=1+|T|$, \eqref{eq:single-query-mean} gives
+\[
+\mathbb E[\xi_C^{\mathrm L}\mid\omega,\ \text{Lower-$0$-Sketch active before }C]
+=\frac{\1[H(v,D_a+1)\in T]}{M'}.
+\]
+Multiplying by $MF_0(C)$ and its active probability $M'/M$ from Lemma~\ref{lem:active_prob}, and applying the same argument separately to the Upper-$0$-Sketch, gives
+\begin{equation}\label{0q}
+\mathbb E[Y_0^{\mathrm L}(C)-Y_0^{\mathrm U}(C)\mid\omega]
+=F_0(C)\1[\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1,\ D_a<d_v^{\le C}\le D_{a+1}].
+\end{equation}
+Summing the conditional expectations over $q$ and using the telescoping identity~\eqref{eq:Fq} gives
+\begin{equation}\label{eq:one-endpoint-high-coordinate}
+\mathbb E[\widehat U^{(a)}_{\ell,j,\alpha}(C)\mid\omega]
+=\1[\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1,\ D_a<d_v^{\le C}\le D_{a+1},\ \widetilde\alpha_j(C)=\alpha].
+\end{equation}
+Summing over clauses yields
+\[
+\mathbb E[\widehat U^{(a)}_{\ell,j,\alpha}\mid\omega]
+=U^{(a)}_{\ell,j,\alpha}.
+\]
+
+\subsubsection{Low-degree case} \label{Sec:lowdegree}
+
+For a low-degree coordinate $U^{(a)}_{\ell,j,\alpha}$, there are $O_\eps(1)$ candidate prefix-degree pairs $(d,c)$, with integers $D_a<d\le D_{a+1}$ and $0\le c\le d$. For each pair, we maintain a $(d,c)$-Sketch.
+
+Each $(d,c)$-Sketch consists of independent Lower-$(d,c)$-Sketch and Upper-$(d,c)$-Sketch sub-sketches. Their quantum registers have the same basis labels. The quantum register and update operations are the same as in the high-degree case, except for the positive-count update described next.
+
+For the update step, Step-3 is replaced as follows: if this literal copy is positive, perform
+$
+      \mathrm{inc}(E,u,B_a).
+    $
+
+For the query step, the Lower-$(d,c)$-Sketch performs a single-query on \[
+E(v, B_a c+d )
+\] and the Upper-$(d,c)$-Sketch performs single-query on \[
+E(v, B_a c+d+1 ).
+\] 
+
+The difference of their expected outputs tests $\Gamma_a(d_v^{\le C},p_v^{\le C})=B_ac+d$. Since it does not separately test the prefix degree interval, an endpoint with degree outside $(D_a,D_{a+1}]$ may contribute. Lemma~\ref{lem:low-degree-singleton-impersonation} includes every such contribution in $\mathsf{Imp}^{a}_{C,j}$.
+
+\paragraph{Output.}
+After a successful query on $C$, the corresponding Lower-$(d,c)$-Sketch or Upper-$(d,c)$-Sketch stores the nonzero single-query output, which equals $1$, and computes
+\[
+F_{d,c}(C)
+:=
+\1\!\left[
+\clip\!\left(
+\frac{2(c+p_v^{>C})}{d+d_v^{>C}}-1+g(v)
+\right)\in I_{i_\alpha}
+\right]
+\]
+using the candidate prefix values $(d,c)$ in Definition~\ref{def:weighted-pseudobias}. Define
+\[
+Y_{d,c}^{\mathrm L}(C):=M\cdot \xi^{\mathrm L}_{d,c}(C)\cdot F_{d,c}(C),
+\qquad
+Y_{d,c}^{\mathrm U}(C):=M\cdot \xi^{\mathrm U}_{d,c}(C)\cdot F_{d,c}(C),
+\]
+where $\xi^{\mathrm L}_{d,c}(C),\xi^{\mathrm U}_{d,c}(C)\in\{0,1\}$ are the single-query outputs of the Lower-$(d,c)$-Sketch and Upper-$(d,c)$-Sketch, respectively. Extend both outputs by $0$ to clauses with $\mathsf{Tgt}^{\ell,j,\alpha}_{C}=0$.
+
+\paragraph{Estimation and Analysis.}
+Fix $\omega$ satisfying $\mathcal G_1$. For each clause $C$, define
+\[
+\widehat U^{(a)}_{\ell,j,\alpha}(C)
+:=\sum_{d=D_a+1}^{D_{a+1}}\sum_{c=0}^{d}
+\bigl(Y_{d,c}^{\mathrm L}(C)-Y_{d,c}^{\mathrm U}(C)\bigr),
+\]
+and set
+\[
+\widehat U^{(a)}_{\ell,j,\alpha}
+:=\sum_{C\in\Phi_{\le\ell_0}}\widehat U^{(a)}_{\ell,j,\alpha}(C).
+\]
+Fix a clause $C$ with $\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1$ and write $v:=v_j(C)$. Conditioned on the Lower-$(d,c)$-Sketch being active before $C$, let its live set be $T$ and $M'=1+|T|$. Equation~\eqref{eq:single-query-mean} gives the single-query mean; replacing its live-label indicator by the prefix-count inequality from Lemma~\ref{lem:nonwrapping-threshold-invariant} gives
+\[
+\begin{aligned}
+&\mathbb E[Y_{d,c}^{\mathrm L}(C)\mid\omega,\ \text{Lower-$(d,c)$-Sketch active before }C]\\
+&\qquad=\frac{M}{M'}F_{d,c}(C)
+\1[\Gamma_a(d_v^{\le C},p_v^{\le C})\ge B_ac+d].
+\end{aligned}
+\]
+Multiplying by its active probability $M'/M$, and applying the same argument separately to the Upper-$(d,c)$-Sketch, yields
+\[
+\mathbb E[Y_{d,c}^{\mathrm L}(C)-Y_{d,c}^{\mathrm U}(C)\mid\omega]
+=F_{d,c}(C)\1[\Gamma_a(d_v^{\le C},p_v^{\le C})=B_ac+d].
+\]
+If $\mathsf{Imp}^{a}_{C,j}$ does not occur, Lemma~\ref{lem:low-degree-singleton-impersonation} excludes equality outside $(D_a,D_{a+1}]$, while \eqref{eq:one-endpoint-ordinary-low-id} identifies the exact prefix-degree pair inside this interval. Hence
+\[
+\Gamma_a(d_v^{\le C},p_v^{\le C})=B_ac+d
+\quad\Longleftrightarrow\quad
+d_v^{\le C}=d,\quad p_v^{\le C}=c.
+\]
+For this pair, $(d,c)$ equals the prefix approximations, so it gives the same pseudo-bias; with sign $s_\alpha$, $F_{d,c}(C)=\1[\widetilde\alpha_j(C)=\alpha]$ by Definitions~\ref{def:weighted-pseudobias} and~\ref{def:weighted-pseudosnapshot}. Therefore
+\[
+\mathbb E[\widehat U^{(a)}_{\ell,j,\alpha}(C)\mid\omega]
+=\1[D_a<d_v^{\le C}\le D_{a+1},\ \widetilde\alpha_j(C)=\alpha]
+\]
+whenever $\mathsf{Imp}^{a}_{C,j}$ does not occur.
+
+For any fixed clause, at most one candidate pair satisfies $\Gamma_a(d_v^{\le C},p_v^{\le C})=B_ac+d$: equality for two pairs implies $d-d'=B_a(c'-c)$, and $|d-d'|<B_a$ forces $c=c'$ and $d=d'$. Thus the expected contribution of all $(d,c)$-sketches lies in $[0,1]$. An impersonating endpoint has $d_v^{\le C}>D_{a+1}$ and is not counted by the target coordinate. Clauses with $\mathsf{Tgt}^{\ell,j,\alpha}_{C}=0$ have zero output, so
+\begin{equation}\label{eq:one-endpoint-low-coordinate}
+\begin{aligned}
+\left|
+\mathbb E[\widehat U^{(a)}_{\ell,j,\alpha}(C)\mid\omega]
+-\1\!\left[\substack{\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1,\\
+D_a<d_v^{\le C}\le D_{a+1},\
+\widetilde\alpha_j(C)=\alpha}\right]
+\right|
+\le\1[\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1,\ \mathsf{Imp}^{a}_{C,j}].
+\end{aligned}
+\end{equation}
+Summing over clauses gives
+\begin{equation}\label{eq:one-endpoint-low-coordinate-total}
+\left|
+\mathbb E[\widehat U^{(a)}_{\ell,j,\alpha}\mid\omega]
+-U^{(a)}_{\ell,j,\alpha}
+\right|
+\le\sum_{C\in\Phi_{\le\ell_0}}
+\1[\mathsf{Tgt}^{\ell,j,\alpha}_{C}=1,\ \mathsf{Imp}^{a}_{C,j}].
+\end{equation}
