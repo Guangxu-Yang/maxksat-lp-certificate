@@ -1,0 +1,93 @@
+{
+  "schema": "maxksat.strict_incumbent_promotion.v1",
+  "created_utc": "2026-09-06T05:20:00Z",
+  "campaign_version": "v016_j2_group_search",
+  "status": "strict_development_incumbent_promoted",
+  "formal_experiment_running": false,
+  "target_rho": "749/1000",
+  "target_reached": false,
+  "old_incumbent": {
+    "rho": "1484867/2000000",
+    "rho_decimal": "0.7424335",
+    "global_minimum_exact_slack": "8037683414232580091507/250000000000000000000000000000",
+    "certificate_sha256": "ddb2affc68e0268ebf1c12401dbdc414ee92704bed2e84c5c02c564366fae8d1",
+    "anchor_sha256": "f0ed94a4de5a47a610d475ef8d8beb57155bcca8727fc0c9d99e386169d81937",
+    "exact_gate_attempt_sha256": "220231ed704a61e63359fb640c4e4c31e213fe84454d711e3b8517c447a29a5d",
+    "identity_report_sha256": "5734f803b64ed54ed5feb841fea142e46d16939c379881599e1286139063ec32",
+    "verification_report_sha256": "85a02c3d18cb47c2424f7c3ac6ee030d68b9f6c5fb77dd06e4344d0cb8ed083d"
+  },
+  "new_incumbent": {
+    "rho": "742694813/1000000000",
+    "rho_decimal": "0.742694813",
+    "numerical_lp_rho": "0.7426948156744636",
+    "design_canonical_hash": "50840a0d010b4f8ecb7e703bdedf8a058dc0b90d1751b1d13a51af855ebcd5c4",
+    "global_minimum_exact_slack": "1/1000000000000",
+    "strict_net_gain": "261313/1000000000",
+    "strict_net_gain_decimal": "0.000261313",
+    "remaining_gap_to_target": "6305187/1000000000",
+    "remaining_gap_to_target_decimal": "0.006305187",
+    "certificate_kind": "fine-unary plus coarse-group-pair H3/H4/H5 surrogate",
+    "positive_bucket_count": 500,
+    "signed_label_count": 1000,
+    "signed_group_count": 20,
+    "weight_denominator": 8380,
+    "weight_numerators": [611000, 157027, 93018, 50280, 10475],
+    "weight_fractions": ["30550/419", "157027/8380", "111/10", "6", "5/4"],
+    "outer_design": {
+      "x": ["2/5", "3/4", "21/25", "49/50"],
+      "b": ["7/50", "11/50", "33/100", "17/20"],
+      "q": ["159/250", "739/1000", "37/50", "189/250", "189/250"],
+      "w2_over_w1": "257/1000"
+    }
+  },
+  "complete_gate": {
+    "passed": true,
+    "family_count": 14,
+    "low_order_label_pairs_checked": 2001000,
+    "high_order_group_multisets_checked": 52899,
+    "upper_hull_transitions_checked": 21946945,
+    "maximum_hull_size": 177,
+    "numerical_lp_rounds": 7,
+    "numerical_lp_seconds": 34.5,
+    "independent_identity_binding_passed": true,
+    "complete_fraction_replay_passed": true,
+    "numerical_bottleneck": {
+      "d1_satisfied": "0.7426948156744636",
+      "d2_satisfied": "0.7426948156744602"
+    },
+    "exact_d2_satisfied_slack": "10093456950252619751/3774016487736475648000000000",
+    "exact_d2_satisfied_argmin": [[415, 0], [1400, 0]],
+    "interpretation": "The promoted certificate is jointly limited by low-order d1/d2. Exact H3/H4/H5 upper slacks equal the explicit 1e-12 repair padding and are not evidence that high order is the optimization bottleneck."
+  },
+  "lineage_and_evidence": {
+    "hierarchical_lift_overall_summary_sha256": "8fd70cb76aa5123c1bbee8c9a87eb3dbf3fd5440eec247e61836214362d2a5ed",
+    "hierarchical_lift_p500_summary_sha256": "519e37af172aa88dae008595159a8f6b73bcf90556f7aea8f3047d9ffe140880",
+    "source_design_artifact_sha256": "b070e1d2c07c593db19ce5fa9d117226f8ea75acd5e7a57bbf096c4880f28e57",
+    "registration_sha256": "14635f40dc36bd583aa5056a28374f27e9da4bab9dd925de4f007f643c36ade7",
+    "raw_numerical_solver_result_sha256": "e1ee590b5346aa2fc77fdbcfc29b473d1ba9e31809cb4ec026b3b747249d0c3b",
+    "canonical_numerical_payload_sha256": "ff19fcb1f6b7655a286d652e681535e3d848601822513fa28ffd903ddcbf9740",
+    "exact_candidate_artifact_sha256": "84ad3c58240ee3677d733a625c7abb8097abf74975a359b40d3c9737b03e342b",
+    "exact_gate_attempt_sha256": "31eb055de861b2203a7d37298460529ae11e15e4cf02e3eb163c57535754693a",
+    "identity_report_sha256": "9477bd303987f1ad86ad79913e53a3a060d466dc54670d7e46c50f1c30a16ebd",
+    "verification_report_sha256": "32e25248fbd6159ca04f4927bbbf4068b1664e513b70c790f4e99ad9532538a0",
+    "certificate_summary_sha256": "b3f0323f4d9029583606d6cefde308f447cc795e8a87460d4124732a3c9943f5",
+    "certificate_sha256s_manifest_sha256": "90dcbdeb54d29731bf39c0ee9e6c75b1b81c5c029edd75e59c7faebf039e6132",
+    "certificate_summary_content_sha256": "92b43e034f44deb47d9b7029d60aeb879b5aff27e6010863c08c9d42ce448651",
+    "exact_report_payload_sha256": "32ff7b4c83ac19b875c8a07efbb98a8fb0455a276de773661b79d61104366069",
+    "raw_design_content_sha256": "75956e7660451fc8b1f8fb29768e328ce98dea43a142205703a387917cdf31c1",
+    "raw_witness_content_sha256": "21e84153f1d2dd02fa5e6493dd1493f36bca6e181ca8c84945240e7c4b11f02f",
+    "group_map_content_sha256": "4c89f0b7302ebda94fa1f6543f002286c35a16192a0a57b01659d4b2fd959d60",
+    "unary_content_sha256": "43a14d064207f0fb6339d326a174152ae653e5446965fee0b6e279acc962dd36",
+    "pair_content_sha256": "3c4af1d418b2d6abf819f30ccd836d1b76529e26e1a15c7807c6af9bea57f64b",
+    "lambda_content_sha256": "ab9a1c5d56ec9155286f2c4d6491398896e81118c77dd5bb60445c17122f03fb",
+    "certificate_directory": "Workspace/versions/v016_j2_group_search/artifacts/development/target_domain_p500_fine_unary_001"
+  },
+  "source_code_binding": {
+    "numerical_runner_sha256": "664ff8be216a01b68d4d005da406cf0de268f4c7eea958ca5f350e3ce0e07fb8",
+    "fine_unary_large_core_sha256": "93fe39eb5d695ddbbfdc0adbcf77aa0cacd937196356d4ac1f5d22fcc40eacdb",
+    "exact_verifier_sha256": "5b00b23d690da9d5fb3c27bb737d865558c3f2bd45494dc54a5ed8573321f838",
+    "identity_verifier_sha256": "2a47504eff95a2582f346469eadedc643a3f5f80d57ed53a2db5f54987488333",
+    "gate_runner_sha256": "52b48a4cb58f8385a9e5ffee543432324c9a45af707f8843bcb79c2392f7e66d"
+  },
+  "claim_boundary": "This record promotes a strict development incumbent only. It does not claim rho >= 0.749 and does not start or complete the one-hour formal experiment. Existing SHA-bound certificate files are referenced, not modified."
+}

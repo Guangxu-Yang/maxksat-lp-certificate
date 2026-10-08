@@ -1,0 +1,29 @@
+{
+  "schema": "maxksat.strict_incumbent_promotion.sha256_manifest.v1",
+  "created_utc": "2026-09-06T05:20:00Z",
+  "promotion_record": {
+    "path": "promotion.json",
+    "sha256": "8475f73d5a2edcdbace963627c1ffef11bb5c3895384b319309b3cae7db10741"
+  },
+  "policy_snapshot_after_promotion": {
+    "path": "EXPERIMENT_POLICY.json",
+    "sha256": "d76beb4582c0a3b5d1ab94514cc7b042f3190ff5d96d12a647b2c331b424c030",
+    "note": "Snapshot hash at promotion time; the root policy remains a mutable project control file."
+  },
+  "numbered_log_snapshot": {
+    "path": "Logs/051_v016_P500严格基线提升与低阶瓶颈.md",
+    "sha256": "af833d4e29076fb85a06b7c654f391de2a32c931db816cdb463ce0008585853a"
+  },
+  "immutable_certificate_chain": {
+    "directory": "Workspace/versions/v016_j2_group_search/artifacts/development/target_domain_p500_fine_unary_001",
+    "registration_sha256": "14635f40dc36bd583aa5056a28374f27e9da4bab9dd925de4f007f643c36ade7",
+    "raw_numerical_solver_result_sha256": "e1ee590b5346aa2fc77fdbcfc29b473d1ba9e31809cb4ec026b3b747249d0c3b",
+    "canonical_numerical_payload_sha256": "ff19fcb1f6b7655a286d652e681535e3d848601822513fa28ffd903ddcbf9740",
+    "exact_candidate_artifact_sha256": "84ad3c58240ee3677d733a625c7abb8097abf74975a359b40d3c9737b03e342b",
+    "exact_gate_attempt_sha256": "31eb055de861b2203a7d37298460529ae11e15e4cf02e3eb163c57535754693a",
+    "identity_report_sha256": "9477bd303987f1ad86ad79913e53a3a060d466dc54670d7e46c50f1c30a16ebd",
+    "verification_report_sha256": "32e25248fbd6159ca04f4927bbbf4068b1664e513b70c790f4e99ad9532538a0",
+    "certificate_summary_sha256": "b3f0323f4d9029583606d6cefde308f447cc795e8a87460d4124732a3c9943f5",
+    "certificate_sha256s_manifest_sha256": "90dcbdeb54d29731bf39c0ee9e6c75b1b81c5c029edd75e59c7faebf039e6132"
+  }
+}
