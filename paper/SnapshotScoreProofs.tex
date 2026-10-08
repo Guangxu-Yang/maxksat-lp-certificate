@@ -1,0 +1,214 @@
+\section{Snapshot score approximation}
+\label{sec:Snapshot_score_approximation}
+In this section, we prove Lemma~\ref{lem:maxksat-weighted-snapshot-bound}. Given a rounding profile $\Theta= (\ell_0,\bw,\mathcal{I},\br)$, 
+we first define several linear constraints on the coefficients $\{c_{\ell }, u_{\ell,j}(\alpha), p_{\ell,jt}(\alpha,\beta)\}$ and combine them to formulate a linear programming, denoted by $\mathsf{LP}(\Theta)$,  that  maximizes the approximation $\rho$.
+Finally, an AI agent searches for a good  rounding profile $\Theta$, and exact verification gives $\rho=0.742694813$.
+
+
+\theoremstyle{plain}
+\newtheorem*{restatedsnapshotbound}{Lemma~\ref{lem:maxksat-weighted-snapshot-bound}}
+\theoremstyle{definition}
+
+\begin{restatedsnapshotbound}
+There exist  a rounding profile $\Theta= (\ell_0,\bw,\mathcal{I},\br)$ and coefficients $ \{c_{\ell
+ }, u_{\ell,j}(\alpha), p_{\ell,jt}(\alpha,\beta) \}$ where $3\le \ell\le \ell_0$, $j\in[\ell]$ for $u_{\ell,j}$, $1\le j<t\le\ell$ for $p_{\ell,jt}$, and $\alpha,\beta\in \{+,-\}\times [L]$ so that  for $\rho = 0.742694813$,  we have
+  \[
+  1-\left(\max_{\alpha}(1-q_\alpha)\right)^{\ell_0+1}\ge\rho,
+ \]
+ and
+ \[
+ \rho\cdot \OPT(\Phi_{\le \ell_0})\le  L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0})) \le \mathcal{E}^{\Theta}(\Phi_{\le\ell_0}).
+ \]
+\end{restatedsnapshotbound}
+
+\begin{proof}[Proof of Lemma~\ref{lem:maxksat-weighted-snapshot-bound}]
+\leavevmode\par
+\paragraph{Step 1. Define the first constraint.}
+Fix a rounding profile $\Theta = (\ell_0,\bw,\mathcal{I},\br)$. For $3\le\ell\le\ell_0$, define the score of a clause with labels $\alpha_1,\ldots,\alpha_\ell$ by
+\[
+  H_\Theta(\alpha_1,\ldots,\alpha_\ell)
+  :=c_\ell+\sum_{j=1}^\ell u_{\ell,j}(\alpha_j)
+    +\sum_{1\le j<t\le\ell}p_{\ell,jt}(\alpha_j,\alpha_t).
+\]
+The first constraint requires
+\begin{equation}
+  H_\Theta(\alpha_1,\ldots,\alpha_\ell)
+  \le1-\prod_{j=1}^\ell(1-q_{\alpha_j})
+  \label{eq:snapshot-score-upper}
+\end{equation}
+for every $3\le\ell\le\ell_0$ and every choice of labels.
+This constraint ensures that the snapshot score is upper bounded by  the expected number of satisfied clauses under the random rounding. 
+Clauses of length one or two already use their exact satisfaction probabilities.
+
+
+\paragraph{Step 2. Define the second constraint.}
+The second constraint is to  guarantee the approximation ratio $\rho$ of  the snapshot score. 
+
+
+
+At first, we need some new definitions and notations. 
+Fix an optimal assignment $\bx^*$ for $\Phi_{\le\ell_0}$. Let $i(v)$ be the bucket index with bias $\widetilde b_v\in I_{i(v)}$. Group the clauses of $\Phi_{\le\ell_0}$ by their length, literal signs, bucket indices, and variable values under $\bx^*$; and we define the \textit{record} by 
+\[
+  c=(\ell;s_1,\ldots,s_\ell;i_1,\ldots,i_\ell;\tau_1,\ldots,\tau_\ell),
+  \qquad \ell\in[\ell_0],\quad s_j\in\sgnset,\quad i_j\in[L],\quad\tau_j\in\bits.
+\]
+For each clause $C$, these entries are $s_j=s_j(C)$, $i_j=i(v_j(C))$, and $\tau_j=x^*_{v_j(C)}$. Define the number of clauses with record $c$ by 
+$$
+n_c := \#\{C\in\Phi_{\le\ell_0}:C\text{ has record } c \text{ under } \mathbf{x}^*\}.
+$$  
+
+
+
+
+
+Write the label $\alpha_j=(s_j,i_j)$ and define the contribution of a record to the snapshot score and the optimal value by
+\[
+  h_\Theta(c):=\begin{cases}
+    q_{\alpha_1},&\ell=1,\\
+    1-(1-q_{\alpha_1})(1-q_{\alpha_2}),&\ell=2,\\
+    H_\Theta(\alpha_1,\ldots,\alpha_\ell),&3\le\ell\le\ell_0,
+  \end{cases}
+\]
+\[
+  o(c):=\1\bigl[\exists j\in[\ell]:\ (s_j,\tau_j)\in\{(+,1),(-,0)\}\bigr].
+\]
+Therefore, 
+summing over all records gives
+\begin{equation}
+  L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0}))=\sum_c n_ch_\Theta(c),
+  \qquad \OPT(\Phi_{\le\ell_0})=\sum_c n_co(c).
+  \label{eq:snapshot-record-sums}
+\end{equation}
+
+The bucket bounds restrict the counts $n_c$.
+Let $a_i,b_i$ be the endpoints of $I_i$.
+Put $\chi(+)=1$ and $\chi(-)=-1$. For $i\in[L]$ and $\tau\in\bits$, define the contribution of a record to the lower and upper bucket bounds by
+\[
+  g^{\rm lo}_{i,\tau}(c):=
+  w_\ell\sum_{\substack{j\in[\ell]:\,\\
+  i_j=i,  \tau_j=\tau}}(a_i-\chi(s_j)),
+  \qquad
+  g^{\rm up}_{i,\tau}(c):=
+  w_\ell\sum_{\substack{j\in[\ell]:\\ i_j=i,  \tau_j=\tau } }(\chi(s_j)-b_i),
+\]
+where $w_\ell$, the $\ell$-th entry of $\bw$, is the weight of clauses with length $\ell$.
+Their sums over the records are nonpositive, as the following claim shows.
+\begin{claim}\label{clm:snapshot-bucket-sums}
+For every $i\in[L]$ and $\tau\in\bits$,
+\[
+  \sum_c n_cg^{\rm lo}_{i,\tau}(c)\le0,
+  \qquad \sum_c n_cg^{\rm up}_{i,\tau}(c)\le0.
+\]
+\end{claim}
+\begin{proof}
+Within the variables with $i(v)=i$ and $x_v^*=\tau$, let
+\[
+  d_{i,\tau}:=\sum_{\substack{v:\,i(v)=i, x_v^*=\tau}}(\widetilde p_v+\widetilde q_v),
+  \qquad
+  e_{i,\tau}:=\sum_{\substack{v:\,i(v)=i, x_v^*=\tau}}(\widetilde p_v-\widetilde q_v).
+\]
+Since $a_i\le\widetilde b_v\le b_i$ and $\widetilde p_v-\widetilde q_v=\widetilde b_v(\widetilde p_v+\widetilde q_v)$,
+$
+  a_id_{i,\tau}\le e_{i,\tau}\le b_id_{i,\tau};
+$
+each literal in a clause of length $\ell$ contributes $w_\ell$ to $d_{i_j,\tau_j}$ and $w_\ell\chi(s_j)$ to $e_{i_j,\tau_j}$. Hence
+\[
+  \sum_c n_cg^{\rm lo}_{i,\tau}(c)=a_id_{i,\tau}-e_{i,\tau}\le0,
+  \qquad
+  \sum_c n_cg^{\rm up}_{i,\tau}(c)=e_{i,\tau}-b_id_{i,\tau}\le0. \qedhere
+\]
+\end{proof}
+
+
+
+
+\medskip
+The second constraint is to   find    coefficients $\lambda^{\rm lo}_{i,\tau}\ge 0,\lambda^{\rm up}_{i,\tau}\ge 0$ such that for   every record $c$,
+\begin{equation}
+  h_\Theta(c)-\rho\cdot  o(c)
+  +\sum_{i,\tau}\bigl(
+    \lambda^{\rm lo}_{i,\tau}g^{\rm lo}_{i,\tau}(c)
+    +\lambda^{\rm up}_{i,\tau}g^{\rm up}_{i,\tau}(c)\bigr)\ge0.
+  \label{eq:snapshot-record-lower}
+\end{equation}
+This constraint  builds on the bucket bounds and allows more flexibility in the coefficients so that we can achieve a better approximation ratio $\rho$. Without this  relaxation,  if  we simply ask for   
+\[
+ h_\Theta(c)-\rho\cdot  o(c)\ge 0,
+\] the satisfied unary records $(1;\,+;\,i;\,1)$ and $(1;\,-;\,i;\,0)$ would require $r_i\ge\rho$ and $1-r_i\ge\rho$, forcing $\rho\le1/2$.
+
+\paragraph{Step 3. Maximize the approximation ratio.}
+Given the rounding profile  $\Theta$, we define a linear program $\mathsf{LP}(\Theta)$, combining the constraints from the last two steps, to maximize the approximation ratio $\rho$; the variables of $\mathsf{LP}(\Theta)$ are $\rho$, the score coefficients $c_\ell,u_{\ell,j}(\alpha),p_{\ell,jt}(\alpha,\beta)$, and the extra  coefficients $\lambda^{\rm lo}_{i,\tau},\lambda^{\rm up}_{i,\tau}$ from Step 2.  
+$\mathsf{LP}(\Theta)$ is defined as follows: 
+\[
+\begin{aligned}
+  \text{maximize}\quad &\rho\\
+  \text{s.t.}\quad
+  & (1).\;H_\Theta(\alpha_1,\ldots,\alpha_\ell)
+    \le1-\prod_{j=1}^\ell(1-q_{\alpha_j})
+    &&(3\le\ell\le\ell_0;\text{ all labels}),\\
+  &(2).\; h_\Theta(c)-\rho o(c)
+    +\sum_{i,\tau}\bigl(\lambda^{\rm lo}_{i,\tau}g^{\rm lo}_{i,\tau}(c)
+    +\lambda^{\rm up}_{i,\tau}g^{\rm up}_{i,\tau}(c)\bigr)\ge0
+    &&\text{for every record }c,\\
+  &(3).\; \lambda^{\rm lo}_{i,\tau},\lambda^{\rm up}_{i,\tau}\ge0
+    &&(i\in[L],\ \tau\in\bits),\\
+  &(4).\; 0\le\rho\le 1-\left(\max_\alpha(1-q_\alpha)\right)^{\ell_0+1}.
+\end{aligned}
+\]
+Once $\Theta$ is fixed, all $q_\alpha$ and $g^{\rm lo}_{i,\tau}(c),g^{\rm up}_{i,\tau}(c)$ are constants. The first two constraint families are therefore linear, and their index sets are finite. The constraint $(4)$ ensures that every clause of length greater than $\ell_0$ is satisfied with probability at least $\rho$ under this rounding.
+
+\paragraph{Step 4. Prove the approximation guarantee.}
+We first  prove the upper bound. Take any feasible solution of $\mathsf{LP}(\Theta)$. 
+For each $3\le\ell\le\ell_0$, grouping clauses by their labels gives
+\begin{equation}
+  \label{eq:the_2nd_part_score}
+  \begin{aligned}
+  \sum_{C\in\Phi: |C|=\ell} H_\Theta(\alpha_1(C),\ldots,\alpha_\ell(C))
+  =c_\ell M_\ell+\!\sum_{j=1}^\ell\sum_\alpha u_{\ell,j}(\alpha)U_{\ell,j,\alpha}
+  +\sum_{1\le j<t\le\ell}\sum_{\alpha,\beta}
+    p_{\ell,jt}(\alpha,\beta)P_{\ell,j,t,\alpha,\beta}.
+\end{aligned}
+\end{equation}
+Under the  random  rounding by $\Theta$, the expected number of satisfied clauses is
+\[
+\begin{aligned}
+  \mathcal E^\Theta(\Phi_{\le\ell_0})
+  &=\sum_{\ell=1}^{\ell_0}\sum_{C\in\Phi:\,|C|=\ell}\E[C(\bx)]
+  =\sum_{\ell=1}^{\ell_0}\sum_{C\in\Phi:\,|C|=\ell}
+    \left(1-\prod_{j=1}^\ell(1-q_{\alpha_j(C)})\right)\\
+  &\ge \mathcal{E}^{\Theta}(\Phi_{\le 2})
+    +\sum_{\ell=3}^{\ell_0}\sum_{C\in\Phi:\,|C|=\ell}
+      H_\Theta(\alpha_1(C),\ldots,\alpha_\ell(C))\\
+  &=L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0})).
+\end{aligned}
+\]
+The second last inequality is by the constraint  (1), and the last equality is by Equation~\eqref{eq:expect_2_term} and Equality~\eqref{eq:the_2nd_part_score}.
+
+
+
+
+
+For the lower bound, multiply Inequality~\eqref{eq:snapshot-record-lower} by $n_c$ and sum over records $c$; by  Equality~\eqref{eq:snapshot-record-sums}, we have
+\[
+\begin{aligned}
+  L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0}))-\rho\,\OPT(\Phi_{\le\ell_0})+ \sum_{i,\tau} \underbrace{  \left(
+    \lambda^{\rm lo}_{i,\tau}\sum_c n_cg^{\rm lo}_{i,\tau}(c)
+    +\lambda^{\rm up}_{i,\tau}\sum_c n_cg^{\rm up}_{i,\tau}(c)\right)}_{\le 0}  \ge 0.
+\end{aligned}
+\]
+where the underbrace bound $\le 0$ follows from the nonpositivity of the sums in Claim~\ref{clm:snapshot-bucket-sums} and $\lambda^{\rm lo}_{i,\tau},\lambda^{\rm up}_{i,\tau}\ge 0$. This proves \[L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0}))-\rho\,\OPT(\Phi_{\le\ell_0})\ge 0.\]
+
+
+\paragraph{Step 5. Select and verify the rounding profile.}
+An AI agent alternates between updating $\Theta$ and solving $\mathsf{LP}(\Theta)$ to improve $\rho$.
+
+
+
+We convert the final coefficients to rational numbers and verify every constraint using exact arithmetic. The resulting rounding profile has $\ell_0=5$, $L=1000$, and for any $i\in [1000]$,  $61/250\le r_i\le189/250$. It gives a feasible solution with
+\[
+  \rho=0.742694813,
+  \qquad 1-\left(\max_\alpha(1-q_\alpha)\right)^{\ell_0+1} =  1-\left(\frac{189}{250}\right)^6>
+  \rho.
+\]
+The code for selecting and verifying this rounding profile is available at \url{https://github.com/Guangxu-Yang/maxksat-lp-certificate}.
+\end{proof}

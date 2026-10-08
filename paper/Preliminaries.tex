@@ -1,0 +1,195 @@
+\newcommand{\bw}{\mathbf{w}}
+
+\section{Preliminaries}\label{sec:preliminaries}
+
+ \paragraph{Max-CSPs.} Let $\mathcal F$ be a family of Boolean predicates $f:\bits^\ell\to\bits$, with $1\le\ell\le k$. An instance $\Phi=(C_1,\ldots,C_m)$ of Max-CSP$(\mathcal F)$ consists of $m$ constraints on Boolean variables, denoted by  $\bx:= (x_1,\ldots,x_n)$. 
+
+
+
+Each constraint applies a predicate in $\mathcal F$ to some literals, where a literal is a variable or its negation; we say a constraint is satisfied when the predicate evaluates to $1$. When a clause $C_i$, $i\in [m]$, is satisfied,  let $C_{i}(\bx)=1$; otherwise let $C_{i}(\bx)=0$.
+
+An \textit{assignment} is a choice of a value in $\{0,1\}$ for each variable, denoted by $\bx \in\bits^n$. Given an assignment, define the number of satisfied constraints and the optimal one by 
+\[
+\Val_\Phi(\bx):=\sum_{t=1}^m C_t(\bx),\qquad
+\OPT(\Phi):=\max_{\bx\in\bits^n}\Val_\Phi(\bx).
+\]
+
+
+
+Fix $0\le\rho\le1$ and $\delta\in(0,1)$.  $\mathcal{A}$ is a $\rho$-approximation algorithm for the Max-$k$SAT if its output $\mathcal{A}(\Phi)$ satisfies 
+\[
+\Pr\left[\rho\cdot \OPT(\Phi)\le \mathcal{A}(\Phi) \le\OPT(\Phi) \right]\ge1-\delta.
+\] We call $\rho$ the approximation ratio.
+
+
+
+
+
+% In our algorithm design, we partition  $[-1,1]$ into finite continuous intervals, which we call \textit{buckets}; and allocate the variables into the buckets according to some statistics defined below. Suppose there are $b$ buckets and a variable $x_v$, $v\in [n]$, lies in the $i(v)$-th bucket,  $i(v)\in\{1,\ldots,b\}$. We call $i(v)$ be the bucket index of $v$.
+
+
+ 
+%  Then we define a rounding vector $\br=(r_1,\ldots,r_{b})\in[0,1]^b$ on the  buckets; each entry corresponds to a rounding probability. Perform the random rounding on each variable independently, i.e. let $x_v = 1$ with probability $r_{i(v)}$; otherwise let $x_v = 0$.
+% Let $\mathcal R_{\br}$ be  the distribution of the assignment by random rounding. Let the expectation of satisfied clauses be
+% \[
+% \mathcal E_r(\Phi):=\E_{\bx \sim\mathcal R_{\br}} [\Val_\Phi(\bx)].
+% \]
+
+
+\paragraph{Max-$k$SAT}. Max-$k$SAT is a specific case of Max-CSP$(\mathcal F)$ in which each constraint is a clause, i.e., the OR of at most $k$ literals. And the optimal value $\OPT(\Phi)$ is the maximum number of clauses satisfied over all assignments.
+
+
+
+For ease of  description, we  \textit{simplify} the clauses:  remove repeated literals; count and discard clauses containing both a variable and its negation. Let $\Phi$ denote the remaining instance. Let $\Phi_{\le\ell_0}$ consist of the clauses of $\Phi$ of length at most $\ell_0$. Then we add the discarded tautological clauses back to the final count directly.
+
+Unless otherwise stated, we assume throughout that all clauses are simplified.
+
+
+\paragraph{Quantum streaming algorithms.}
+In this paper, we design an approximation algorithm $\mathcal{A}$ of $\OPT(\Phi)$, more specifically, a one-pass quantum streaming algorithm. For the input instance $\Phi = (C_1,...,C_m)$, it processes the constraints left-to-right using a limited quantum workspace. 
+
+
+
+
+First, the algorithm receives the number of variables $n$ and the stream length $m$. Then it initializes a quantum work register $\mathcal W$  by an initial state $\varrho_0$.
+
+
+
+    
+The algorithm receives the constraints $C_1, \ldots, C_m$ one by one (in a possibly adversarial order). For each constraint $C_i$, $i\in [m]$, the algorithm applies a quantum channel $\mathcal H_{C_i}$ acting on $\mathcal W$. As the input stream is processed, the state of the work register evolves as:
+\[
+  \varrho_i =  \mathcal H_{C_i}(\varrho_{i-1}), \qquad i=1,2,\ldots,m.
+\]
+    
+After the stream, the algorithm measures the register $\mathcal W$ and outputs a value $\mathcal{A}(\Phi)$.
+
+
+
+In this quantum streaming framework, the space complexity of the algorithm is the number of qubits used in the register $\mathcal{W}$. We place no restriction on the running time or computational complexity of the quantum update channels. We also allow the algorithm read-only access to public random bits, and these random bits are not charged to the working space.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{Random rounding.} The most natural way to find an assignment with average behavior is random rounding, i.e., for each variable $x_v$, $v\in [n]$, define a rounding probability $r_v\in [0,1]$ and choose its value independently so that 
+\[
+\Pr[x_v=1] = r_v,\quad \Pr[x_v=0] = 1-  r_v.
+\]
+Denote the sign of  literal by $s\in \{+,-\}$. Thus for each literal $(x_v,s)$, the probability that this literal is satisfied is
+$r_v$ if $s= +$ while $1-r_v$ if $s= -$.
+
+
+
+For a clause $C$ and its $j$-th literal, denote the variable index by $v_{j}(C)\in [n]$ and the sign by $s_{j}(C)\in \{+,-\}$.
+Define the satisfaction probability of the $j$-th literal by \[
+q_{j} := \begin{cases}
+    r_{v_{j}(C)},& \text{ if }\;\; s_{j}(C)=+,\\
+    1-r_{v_{j}(C)},& \text{ if }\;\; s_{j}(C)=-.
+\end{cases}
+\]
+Thus the probability that a clause is satisfied is determined by the rounding probability and the signs in each position, i.e., 
+\begin{equation}
+\label{eq:satisfied_probability}
+    1-\prod_{j=1}^{|C|}(1-q_{j}).
+\end{equation} 
+
+Under random rounding, $\E[\Val_\Phi(\bx)]\le\OPT(\Phi)$. To obtain $\E[\Val_\Phi(\bx)]\ge\rho\OPT(\Phi)$, we need to carefully design the rounding probabilities. 
+
+
+\paragraph{Bias, buckets, labels, and  rounding probability.}
+For a variable $x_v$, let the \textit{positive degree}  $p_v$ be the total  number of the occurrences of $x_v$ and let \textit{negative degree}  $q_v$  be the total number of the occurrences of $\lnot x_v$,  among all clauses. And let the  \textit{total degree}  be $d_v:=p_v+q_v$. Therefore, we can define the \textit{bias} of $x_v$ by  \[
+b_{v}:=\begin{cases}
+    (p_v-q_v)/d_v, & \text{ if }\;\; d_v>0,\\
+    0, & \text{ if }\;\; d_v=0.
+\end{cases} 
+\]
+
+Bias is a natural guide for designing the rounding probability. Notice that the bias $b_v\in [-1,1]$. If $b_v\to 1$, it means most literals on $x_v$ have positive sign, so we should choose the rounding probability $r_v\to 1$; similarly, if $b_v\to -1$, we should let $r_v\to 0$. Moreover, storing an independent $r_v$ for each $x_v$, $v\in [n]$, will cost $\Omega(n)$ memory space; thus to achieve the logarithmic space, we group the variables by bias and let the variables in a  group share the same rounding probability.
+
+
+More concretely, we partition  $[-1,1]$ into $L$ intervals, denoted by $\mathcal{I}:= \{I_1,I_2,...,I_L\}$ where  \[
+  I_i=[a_i,b_i)\quad(1\le i\le L-1),\qquad 
+  I_{L}=[a_{L},b_{L}],
+  \qquad \text{ and }\;\; [-1,1]=\bigsqcup_{i=1}^{L} I_{i}.
+\]
+We call $\{I_1,I_2,...,I_L\}$ \textit{buckets}. For each bucket $I_{i}$, we define a rounding probability $r_i\in [0,1]$. Let the \textit{rounding vector} $\br= (r_1,\ldots,r_L)$. 
+
+
+
+
+Given a clause $C$ and the $j$-th literal with bias  in $I_i$ and sign $s\in \{+,-\}$, we define the \textit{label} \footnote{We use the basic version of bias here for ease of explanation; later we will replace the bias condition by a more well-designed version called  weighted bias.} $$\alpha_{j} (C) := (s,i)\in \{+,-\}\times [L].$$ Thus  the satisfaction probability is \[
+q_{\alpha_{j}(C)} := \begin{cases}
+    r_{i},& \text{ if }\;\; s_{j}(C)=+,\\
+    1-r_{i},& \text{ if }\;\; s_{j}(C)=-.
+\end{cases}
+\]
+Sometimes we write $q_{\alpha}$ and  $\alpha\in \{+,-\}\times [L]$ for short, if the position $j$ and clause $C$ are clear from context or no particular choice is intended.
+
+
+\paragraph{Weighted bias.}
+A key observation is that $\Pr[C(\bx)=1]\ge1-(\max_\alpha(1-q_\alpha))^{|C|}$. Fix a length threshold $\ell_0$ such that $1-(\max_\alpha(1-q_\alpha))^{\ell_0+1}\ge\rho$. Then every clause of length greater than $\ell_0$ is satisfied with probability at least $\rho$. 
+Therefore, in the following argument, we focus on the  clauses with length at most $\ell_0$, denoted by $\Phi_{\le \ell_0}$. 
+
+
+
+
+To incorporate the effect of clause length into the bias, we define the \textit{weighted bias}. Throughout the rest of the paper, we use these weighted versions and may omit the qualifier ``weighted''.
+
+\begin{definition}[Weighted bias]
+\label{def:maxksat-bias}
+Fix a variable $x_v$ and  length $\ell\in [\ell_0]$. The \textit{positive degree} $p_v^{(\ell)}$ counts clauses of length $\ell$ containing $x_v$. The \textit{negative degree} $q_v^{(\ell)}$ counts those containing $\neg x_v$. With weights $\bw := (w_1,w_2,...,w_{\ell_0})\in\mathbb Q_{>0}^{\ell_0}$, we define the weighted positive and negative  degree by 
+\[
+   \widetilde{p }_v:= \sum_{\ell=1}^{\ell_0} w_{\ell}\cdot p_{v}^{(\ell)}  ,\qquad
+  \widetilde q_v:= \sum_{\ell=1}^{\ell_0} w_{\ell}\cdot q_{v}^{(\ell)}. 
+\]
+The \textit{weighted bias} is
+\[
+  \widetilde b_v:=\begin{cases}
+    ( \widetilde p_v-  \widetilde q_v)/( \widetilde p_v+ \widetilde q_v),& \widetilde p_v+ \widetilde q_v>0,\\
+    0,& \widetilde p_v+ \widetilde q_v=0.
+  \end{cases}
+\]
+\end{definition}
+
+Given the weighted bias, the satisfaction probability is  $q_{\alpha}$ on  label    $\alpha = (s,i)$ where  $i$ denotes the bucket index with $\widetilde b_v\in I_{i}$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,121 @@
+\section{Reducing \texorpdfstring{Max-$k$SAT}{Max-kSAT} to weighted snapshot estimation}
+\label{sec:weighted-snapshot-reduction}
+
+
+
+We follow the snapshot approach of Saxena, Singer, Sudan, and Velusamy~\cite{saxena2023improved} on Max-DiCut to reduce the Max-$k$SAT to a statistic  estimation task.
+
+
+
+
+The discussion above reduces our task to choosing suitable length threshold $\ell_0$, weights $\bw$,  buckets $\mathcal{I}$, and the  rounding vector $\br$ so that the resulting randomized rounding achieves the desired approximation ratio. For brevity, we call them the \textit{rounding profile}  and denote it by $\Theta: =(\ell_0, \bw,\mathcal{I} ,\br)$; we defer the discussion of finding good rounding profile to Appendix~\ref{sec:Snapshot_score_approximation}.
+
+
+
+Suppose $\Theta =(\ell_0, \bw,\mathcal{I} ,\br)$ is given, we can define the \textit{weighted snapshot}, which groups and counts the clauses by their \text{length} and the \text{label} of each literal; it  serves as the key quantity for our algorithm design.
+\begin{definition}[Weighted snapshot]
+\label{def:weighted-snapshot}
+    The weighted snapshot, denoted by $\Snap(\Phi_{\le \ell_0})$, consists of two kinds of quantities; we call them one-endpoint and two-endpoint coordinates.   The
+    \textit{one-endpoint coordinate} counts the clauses satisfying length $\ell$ and the $j$-th literal has label $\alpha\in \{+,-\}\times [L]$ as   \[
+  U_{\ell,j,\alpha}(\Phi):=\#\{C\in\Phi:|C|=\ell,\ \alpha_j(C)=\alpha\}
+  \qquad(1\le j\le \ell\le \ell_0),
+\]
+and the \textit{two-endpoint coordinate}  counts the clauses satisfying  the respective requirements on clause length and  labels at the two positions, i.e., for $\alpha,\beta \in  \{+,-\}\times [L]$ 
+\[
+  P_{\ell,j,t,\alpha,\beta}(\Phi):=
+  \#\{C\in\Phi:|C|=\ell,\ \alpha_j(C)=\alpha,\ \alpha_t(C)=\beta\}
+  \qquad(1\le j<t\le\ell\le\ell_0),
+\]
+\end{definition}
+
+
+\medskip
+Round each variable independently according to $\Theta$ and its weighted bias in $\Phi_{\le\ell_0}$, obtaining an assignment $\bx$. For every subinstance $\Psi\subseteq\Phi$, define $\mathcal E^\Theta(\Psi):=\E[\Val_\Psi(\bx)]$ using this same $\bx$.
+Given the weighted snapshot, 
+the expected number of satisfied clauses of  $\Phi_{\le 2}$ can be written as  \begin{equation}
+  \label{eq:expect_2_term}
+  \mathcal{E}^{\Theta}(\Phi_{\le 2}) = \sum_\alpha U_{1,1,\alpha}q_\alpha +\sum_{\alpha,\beta}P_{2,1,2,\alpha,\beta} \bigl(1-(1-q_\alpha)(1-q_\beta)\bigr).
+\end{equation}
+
+For the clauses with length  $3\le \ell\le \ell_0$, we use the linear combination of the one-endpoint and two-endpoint coordinates as approximate substitutes. Thus we can define the \textit{snapshot score}, which bridges the expected number of satisfied clauses and efficient algorithm design.
+
+\begin{definition}[Snapshot score]
+\label{def:snapshot-score}
+Let $M_{\ell}$ be  the number of clauses with length $\ell$. 
+Given the rounding profile  $\Theta:= (\ell_0,\bw,\mathcal{I},\br)$, define the snapshot score of  $\Phi_{\le \ell_0}$ by  
+    \[
+\begin{aligned}
+  L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0}))
+  := &\sum_\alpha U_{1,1,\alpha}q_\alpha
+    +\sum_{\alpha,\beta}P_{2,1,2,\alpha,\beta}
+      \bigl(1-(1-q_\alpha)(1-q_\beta)\bigr)\\
+  &+\sum_{\ell=3}^{\ell_0} \bigg[   c_{\ell}\cdot M_{\ell} +\sum_{1\le j\le \ell} \sum_\alpha u_{\ell,j}(\alpha)U_{\ell,j,\alpha}
+    +\sum_{1\le j<t\le\ell} \sum_{\alpha,\beta}
+      p_{\ell,jt}(\alpha,\beta)P_{\ell,j,t,\alpha,\beta} \bigg],
+\end{aligned}
+\]
+where $q_{\alpha}$,  $q_{\beta}$ are the satisfaction probability from $\Theta$ and  $c_{\ell},u_{\ell,j}(\alpha), p_{\ell,jt}(\alpha,\beta )\in \mathbb{R}$ are linear   coefficients to be determined. 
+Moreover, given an approximation ratio $\rho\in [0,1]$, let the snapshot  score of $\Phi$ be 
+\[
+L^\Theta(\Phi )  = L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0})) + \rho\cdot M_{> \ell_0},
+\]
+where $M_{> \ell_0} := \sum_{\ell=\ell_0 +1}^{n} M_{\ell}$.
+\end{definition}
+
+
+\begin{lemma}
+\label{lem:maxksat-weighted-snapshot-bound}
+ There exist  a rounding profile $\Theta= (\ell_0,\bw,\mathcal{I},\br)$ and coefficients $ \{c_{\ell
+ }, u_{\ell,j}(\alpha), p_{\ell,jt}(\alpha,\beta) \}$ where $3\le \ell\le \ell_0$, $j\in[\ell]$ for $u_{\ell,j}$, $1\le j<t\le\ell$ for $p_{\ell,jt}$, and $\alpha,\beta\in \{+,-\}\times [L]$ so that  for $\rho = 0.742694813$,  we have
+  \begin{equation}
+  1-\left(\max_{\alpha}(1-q_\alpha)\right)^{\ell_0+1}\ge\rho
+  \label{eq:snapshot-long-clause-bound},
+ \end{equation}
+ and
+ \[
+ \rho\cdot \OPT(\Phi_{\le \ell_0})\le  L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0})) \le \mathcal{E}^{\Theta}(\Phi_{\le\ell_0}).
+ \]
+\end{lemma}
+
+The proof of Lemma~\ref{lem:maxksat-weighted-snapshot-bound} is in Appendix~\ref{sec:Snapshot_score_approximation}; it gives the following approximation guarantee for the optimal value of Max-$k$SAT.
+
+
+
+
+\begin{theorem}[Max-$k$SAT to snapshot score] 
+\label{thm:maxksat_to_score}
+There exist a  rounding profile $\Theta$ and coefficients $\{c_{\ell}, u_{\ell,j}(\alpha), p_{\ell,jt}(\alpha,\beta)\}$ where  $3\le \ell\le \ell_0$, $j\in[\ell]$ for $u_{\ell,j}$, $1\le j<t\le\ell$ for $p_{\ell,jt}$, and $\alpha,\beta\in \{+,-\}\times [L]$ so that for  $\rho = 0.742694813$, we have 
+\[
+  \rho\,\OPT(\Phi)\le L^{\Theta}(\Phi)\le\OPT(\Phi).
+\]
+
+\end{theorem}
+
+
+
+\begin{proof}[Proof of Theorem~\ref{thm:maxksat_to_score}]
+Take the rounding profile and coefficients selected in  Lemma~\ref{lem:maxksat-weighted-snapshot-bound}.
+Therefore, 
+\[
+ L^\Theta(\Phi )  = L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0})) + \rho M_{> \ell_0} 
+  \ge\rho\,\OPT(\Phi_{\le\ell_0})+\rho M_{>\ell_0}
+  \ge\rho\,\OPT(\Phi).
+\]
+For the upper bound, apply the independent random rounding by $\Theta$; since the variables in the  simplified clause are distinct,  every clause $C\in \Phi$ with $|C|\ge \ell_0+1$  satisfies
+\[
+  \E[C(\bx)]
+  =1-\prod_{j=1}^{|C|}(1-q_{\alpha_j(C)})
+  \ge1-\left(\max_{\alpha}(1-q_\alpha)\right)^{\ell_0+1}
+  \ge\rho.
+\]
+Hence
+\[
+\sum_{C:\,|C|\ge \ell_0+1}\E[C(\bx)] \ge \rho M_{>\ell_0}.
+\]
+Together with the  upper bound of the snapshot score in Lemma~\ref{lem:maxksat-weighted-snapshot-bound}, this gives
+\[
+  L^\Theta(\Phi)
+  \le\mathcal E^\Theta(\Phi_{\le\ell_0})+\sum_{C:\,|C|\ge \ell_0+1}\E[C(\bx)]
+  =\mathcal E^\Theta(\Phi)\le\OPT(\Phi). \qedhere
+\] 
+\end{proof}

@@ -1,0 +1,102 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xcolor}
+\usepackage{tikz,graphicx}
+\setlength{\emergencystretch}{2em}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\F}{\mathcal F}
+\newcommand{\MAXCSP}{\operatorname{MAX\mbox{-}CSP}}
+\newcommand{\BasicLP}{\operatorname{BasicLP}}
+\newcommand{\DIHP}{\operatorname{DIHP}}
+\newcommand{\opt}{\operatorname{opt}}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\C}{\mathbb C}
+\newcommand{\M}{\mathcal M}
+\newcommand{\Y}{\mathcal Y}
+\newcommand{\SF}{\mathrm{SF}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\val}{\operatorname{val}}
+\newcommand{\wt}{\operatorname{wt}}
+\newcommand{\rwt}{\operatorname{rwt}}
+\newcommand{\trnorm}[1]{\left\lVert #1\right\rVert_1}
+\newcommand{\pnorm}[2]{\left\lVert #1\right\rVert_{#2}}
+\newcommand{\Unif}{\operatorname{Unif}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\TV}{\operatorname{TV}}
+\newcommand{\diag}{\operatorname{diag}}
+\providecommand{\OPT}{\operatorname{OPT}}
+\providecommand{\Snap}{\operatorname{WSnap}}
+\providecommand{\PsSnap}{\operatorname{WPsSnap}}
+\providecommand{\poly}{\operatorname{poly}}
+\providecommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\providecommand{\eps}{\varepsilon}
+\providecommand{\sgnset}{\{+,-\}}
+\providecommand{\clip}{\operatorname{clip}}
+\providecommand{\Val}{\operatorname{Val}}
+\providecommand{\bits}{\{0,1\}}
+\newcommand{\1}{\mathbf 1}
+\newcommand{\Qstate}[1]{\left|Q(#1)\right\rangle}
+\newcommand{\inc}[1]{\mathrm{inc}(#1)}
+
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\br}{\mathbf{r}}
+
+
+
+\usepackage{braket}
+\providecommand{\Cut}{\operatorname{Cut}}
+\providecommand{\MaxCut}{\operatorname{MaxCut}}
+\providecommand{\RSnap}{\operatorname{RSnap}}
+\providecommand{\Proj}{\operatorname{Proj}}
+\providecommand{\Refine}{\operatorname{Ref}}
+\providecommand{\Prb}{\mathbb{P}}
+\providecommand{\ind}{\mathbf 1}
+\providecommand{\rhoLP}{\rho_{\mathrm{LP}}}
+\providecommand{\Win}{\operatorname{Win}}
+\newtheorem{claim}{Claim}
+
+\title{Exponential Quantum Space Advantage for Approximating Max-$k$SAT in the Streaming Setting}
+\author{
+Haoyu Wang\thanks{Penn State University. Email: \texttt{hjw5492@psu.edu}.}\\
+\and
+Guangxu Yang\thanks{University of Southern California. Email: \texttt{guangxuy@usc.edu}. Research supported by NSF CAREER award 2141536.}\\
+}
+\begin{document}
+\date{}
+\maketitle
+
+\begin{abstract}
+In this paper, we give a one-pass quantum streaming algorithm for Max-$k$SAT that uses $\operatorname{polylog}(n)$ space and achieves a $0.7426$-approximation on instances with $n$ variables and $\operatorname{poly}(n)$ clauses. In contrast, prior work by Chou, Golovnev, and Velusamy (FOCS 2020) implies that achieving an approximation ratio better than $\sqrt{2}/2 \approx 0.7071$ for Max-$k$SAT requires $\Omega(\sqrt{n})$ space for any classical streaming algorithm. Therefore, it yields an exponential quantum space advantage for Max-$k$SAT in the streaming setting. Combining with the known results, it gives a complete classification of quantum space advantages for all Boolean Max-2CSPs. 
+
+\end{abstract}
+\newpage
+\tableofcontents
+
+\input{Intro}
+\input{Preliminaries}
+\input{k-SATtoSnap}
+\input{Pseudosnap}
+\input{Estimation/Estimation-main}
+\input{Algorithm}
+
+
+\bibliographystyle{alpha}
+\bibliography{ref}
+
+\input{appendix}
+\end{document}

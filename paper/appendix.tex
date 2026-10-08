@@ -1,0 +1,78 @@
+
+\appendix
+\section{Quantum space lower bound for Max-\texorpdfstring{$k$}{k}SAT}
+\label{app:maxksat-lower-bound}
+
+In this section, we prove the quantum space lower bound in Theorem~\ref{thm:maxksat-quantum-lb} by reducing the Max-Cut promise problem to Max-$k$SAT.
+
+For a graph $G=(V,E)$ with $m_E:=|E|$ and an assignment $\sigma:V\to\{0,1\}$, define
+\[
+  \Cut_G(\sigma)
+  :=
+  \bigl|\{\{u,v\}\in E:\sigma(u)\ne\sigma(v)\}\bigr|,
+  \qquad
+  \MaxCut(G):=\max_\sigma \Cut_G(\sigma).
+\]
+
+We use the following promise-gap form of the quantum streaming lower bound for Max-Cut of Kallaugher and Parekh~\cite{KP22}.
+
+\begin{theorem}\cite{KP22}\label{max-cut}
+For every constant $0<\varepsilon<1/2$, any one-pass quantum streaming algorithm that, on an $n$-vertex graph $G$ with $m_E$ edges, distinguishes
+\[
+  \MaxCut(G)=m_E
+  \qquad\text{from}\qquad
+  \MaxCut(G)\le (1/2+\varepsilon)m_E
+\]
+with constant advantage requires $\Omega(n)$ qubits of space.
+\end{theorem}
+
+\begin{proof}[Proof of Theorem \ref{thm:maxksat-quantum-lb}]
+We reduce from this Max-Cut promise problem. Given the edge stream of $G$, we construct a Max-$k$-SAT stream $\Phi_G$ online by replacing each edge $\{u,v\}$ with the two clauses
+\[
+  (x_u\vee x_v),
+  \qquad
+  (\neg x_u\vee \neg x_v).
+\]
+Since $k\ge2$, these are valid Max-$k$-SAT clauses.  The reduction is one-pass and online, and uses only $O(\log (n+m_E))$ additional classical space. The resulting instance has $M=2m_E$ clauses.  In what follows, $m_E$ always denotes the number of Max-Cut edges, not the number of Max-$k$SAT clauses.
+
+For every assignment $\sigma$, each edge contributes
+$1+\mathbf 1[\sigma(u)\ne\sigma(v)]$ satisfied clauses: if $\sigma(u)\ne\sigma(v)$, both clauses are satisfied, whereas if $\sigma(u)=\sigma(v)$, exactly one is satisfied.  Summing over all edges gives
+\[
+  \Val_{\Phi_G}(\sigma)=m_E+\Cut_G(\sigma).
+\]
+Taking the maximum over $\sigma$, we obtain
+$\OPT(\Phi_G)=m_E+\MaxCut(G)$.
+
+Now suppose, toward contradiction, that there is a one-pass quantum streaming algorithm $\mathcal A$ using $o(n)$ qubits and achieving an approximation ratio
+$3/4+\gamma$ for Max-$k$-SAT, for a fixed $\gamma>0$, with error probability $\delta=1/3$. Choose $0<\varepsilon<\min\{2\gamma,1/2\}$, and run $\mathcal A$ on the stream $\Phi_G$ produced above. Let $Z:=\mathcal A(\Phi_G)$; with probability at least $2/3$,
+\[
+  \left(\frac34+\gamma\right)\OPT(\Phi_G)\le Z\le\OPT(\Phi_G).
+\]
+
+If $\MaxCut(G)=m_E$, then
+\[
+  \OPT(\Phi_G)=2m_E=M,
+\]
+so a successful run of $\mathcal A$ outputs
+\[
+  Z\ge
+  \left(\frac34+\gamma\right)2m_E
+  =
+  \left(\frac32+2\gamma\right)m_E.
+\]
+If instead $\MaxCut(G)\le (1/2+\varepsilon)m_E$, then
+\[
+  \OPT(\Phi_G)
+  \le
+  m_E+\left(\frac12+\varepsilon\right)m_E
+  =
+  \left(\frac32+\varepsilon\right)m_E,
+\]
+and a successful run satisfies $Z\le\OPT(\Phi_G)$.
+
+Output the first case if $Z>(3/2+\varepsilon)m_E$ and the second case otherwise. Since $\varepsilon<2\gamma$, this distinguishes the Max-Cut promises with probability at least $2/3$ using $o(n)$ space, contradicting Theorem~\ref{max-cut}.  Therefore, any one-pass quantum streaming algorithm beating $3/4$ for Max-$k$SAT requires $\Omega(n)$ qubits of space.
+\end{proof}
+
+\input{SnapshotScoreProofs}
+\input{PseudosnapProofs}
+\input{QuantumEstimationProofs}

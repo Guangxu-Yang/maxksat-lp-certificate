@@ -1,0 +1,262 @@
+\section{Proofs for the weighted snapshot and pseudo-snapshot}
+\label{app:weighted-snapshot-proofs}
+
+In this section, we prove Lemmas~\ref{lem:weighted-snapshot-score-error} and~\ref{lem:weighted-snapshot-closeness}, i.e., the additive score bound and the snapshot distance bound.
+
+Recall that $\Snap_{\eps}$ uses labels $(s_j(C),i'(v_j(C)))$, where
+\[
+  b'_v:=\clip(\widetilde b_v+g(v)),\qquad b'_v\in I_{i'(v)}.
+\]
+Here $\clip(z)=\max\{-1,\min\{1,z\}\}$, $g(v)$ is the same noise used in the pseudo-snapshot, and $a_i,b_i$ are the endpoints of $I_i$.
+Since $\widetilde b_v\in[-1,1]$ and $|g(v)|\le\eps$,
+\[
+  |b'_v-\widetilde b_v|\le\eps
+  \quad\Longrightarrow\quad
+  a_{i'(v)}-\eps\le\widetilde b_v\le b_{i'(v)}+\eps.
+\]
+\theoremstyle{plain}
+\newtheorem*{restatedscorelemma}{Lemma~\ref{lem:weighted-snapshot-score-error}}
+\newtheorem*{restatedclosenesslemma}{Lemma~\ref{lem:weighted-snapshot-closeness}}
+\theoremstyle{definition}
+
+\begin{restatedscorelemma}[Snapshot score with an additive error]
+Use the rounding profile $\Theta$ and coefficients giving the snapshot score approximation in Lemma~\ref{lem:maxksat-weighted-snapshot-bound}.
+There is a constant $\gamma_2>0$, depending only on the fixed rounding profile and coefficients, such that for every choice of $g(v)\in[-\eps,\eps]$, $v\in[n]$, we have
+\[
+  \rho\,\OPT(\Phi)-\gamma_2\eps m
+  \le L_{\le\ell_0}^\Theta(\Snap_{\eps}(\Phi_{\le\ell_0}))
+     +\rho M_{>\ell_0}
+  \le\OPT(\Phi).
+\]
+\end{restatedscorelemma}
+
+We restate the LP inequalities used for each bound and apply them with the indices $i'(v)$.
+\begin{proof}[Proof of Lemma~\ref{lem:weighted-snapshot-score-error}]
+\leavevmode\par
+\paragraph{Step 1. Prove the upper bound.}
+For every $3\le\ell\le\ell_0$ and every choice of labels, constraint~\eqref{eq:snapshot-score-upper} gives
+\[
+  H_\Theta(\alpha_1,\ldots,\alpha_\ell)
+  =c_\ell+\sum_{j=1}^\ell u_{\ell,j}(\alpha_j)
+   +\sum_{1\le j<t\le\ell}p_{\ell,jt}(\alpha_j,\alpha_t)
+  \le1-\prod_{j=1}^\ell(1-q_{\alpha_j}).
+\]
+Choose $\bx\in\bits^n$ by setting its coordinates independently, with $\Pr[x_v=1]=r_{i'(v)}$ for every $v\in[n]$.
+For each clause $C$,
+\[
+  \E[C(\bx)]=1-\prod_{j=1}^{|C|}(1-q_{(s_j(C),i'(v_j(C)))}).
+\]
+Clauses of length one or two use this probability as their score, so summing the clause scores gives
+\[
+  L_{\le\ell_0}^\Theta(\Snap_{\eps}(\Phi_{\le\ell_0}))
+  \le\E[\Val_{\Phi_{\le\ell_0}}(\bx)].
+\]
+For $|C|>\ell_0$, the rounding profile satisfies
+\[
+  \E[C(\bx)]
+  \ge1-\left(\max_\alpha(1-q_\alpha)\right)^{\ell_0+1}
+  \ge\rho.
+\]
+Hence
+\[
+\begin{aligned}
+  L_{\le\ell_0}^\Theta(\Snap_{\eps}(\Phi_{\le\ell_0}))+\rho M_{>\ell_0}
+  &\le\E[\Val_{\Phi_{\le\ell_0}}(\bx)]
+       +\sum_{C:\,|C|>\ell_0}\E[C(\bx)]\\
+  &=\E[\Val_\Phi(\bx)]\le\OPT(\Phi).
+\end{aligned}
+\]
+
+\paragraph{Step 2. Prove the lower bound.}
+Take an optimal assignment $\bx^*$ for $\Phi_{\le\ell_0}$.
+For each clause $C$ of length $\ell$, use the record
+\[
+  c=(\ell;s_1,\ldots,s_\ell;i_1,\ldots,i_\ell;\tau_1,\ldots,\tau_\ell),
+  \qquad (s_j,i_j,\tau_j)=(s_j(C),i'(v_j(C)),x^*_{v_j(C)}).
+\]
+Define $n_c:=\#\{C\in\Phi_{\le\ell_0}:C\text{ has record }c\}$ and write $\alpha_j=(s_j,i_j)$. Recall the clause score
+\[
+  h_\Theta(c):=\begin{cases}
+    q_{\alpha_1},&\ell=1,\\
+    1-(1-q_{\alpha_1})(1-q_{\alpha_2}),&\ell=2,\\
+    H_\Theta(\alpha_1,\ldots,\alpha_\ell),&3\le\ell\le\ell_0,
+  \end{cases}
+\]
+and set
+\[
+  o(c):=\1\bigl[\exists j\in[\ell]:\ (s_j,\tau_j)\in\{(+,1),(-,0)\}\bigr].
+\]
+Then
+\[
+  L_{\le\ell_0}^\Theta(\Snap_{\eps}(\Phi_{\le\ell_0}))=\sum_c n_ch_\Theta(c),\qquad
+  \OPT(\Phi_{\le\ell_0})=\sum_c n_co(c).
+\]
+Write $\chi(+)=1$, $\chi(-)=-1$, and recall
+\[
+  g^{\rm lo}_{i,\tau}(c):=
+  w_\ell\sum_{\substack{j\in[\ell]:\,i_j=i\\ \tau_j=\tau}}(a_i-\chi(s_j)),
+  \qquad
+  g^{\rm up}_{i,\tau}(c):=
+  w_\ell\sum_{\substack{j\in[\ell]:\,i_j=i\\ \tau_j=\tau}}(\chi(s_j)-b_i).
+\]
+Constraint~\eqref{eq:snapshot-record-lower} gives nonnegative coefficients $\lambda^{\rm lo}_{i,\tau},\lambda^{\rm up}_{i,\tau}$ such that, for every record $c$,
+\[
+  h_\Theta(c)-\rho o(c)
+  +\sum_{i,\tau}\bigl(
+    \lambda^{\rm lo}_{i,\tau}g^{\rm lo}_{i,\tau}(c)
+    +\lambda^{\rm up}_{i,\tau}g^{\rm up}_{i,\tau}(c)\bigr)\ge0.
+\]
+When scaling the weights to integers, divide these coefficients by the same factor; the products $\lambda^{\rm lo}_{i,\tau}w_\ell$ and $\lambda^{\rm up}_{i,\tau}w_\ell$ are unchanged.
+For $i\in[L]$ and $\tau\in\bits$, define
+\[
+  d_{i,\tau}:=\sum_{\substack{v:\,i'(v)=i,\ x_v^*=\tau}}\widetilde d_v,\qquad
+  e_{i,\tau}:=\sum_{\substack{v:\,i'(v)=i,\ x_v^*=\tau}}(\widetilde p_v-\widetilde q_v).
+\]
+The bias bounds and $\widetilde p_v-\widetilde q_v=\widetilde b_v\widetilde d_v$ give
+\[
+  (a_i-\eps)d_{i,\tau}\le e_{i,\tau}\le(b_i+\eps)d_{i,\tau}.
+\]
+Thus
+\[
+  \sum_c n_cg^{\rm lo}_{i,\tau}(c)=a_id_{i,\tau}-e_{i,\tau}\le\eps d_{i,\tau},\qquad
+  \sum_c n_cg^{\rm up}_{i,\tau}(c)=e_{i,\tau}-b_id_{i,\tau}\le\eps d_{i,\tau}.
+\]
+Multiplying the record inequality by $n_c$ and summing gives
+\[
+\begin{aligned}
+  L_{\le\ell_0}^\Theta(\Snap_{\eps}(\Phi_{\le\ell_0}))-\rho\OPT(\Phi_{\le\ell_0})
+  &\ge-\sum_{i,\tau}\left(
+    \lambda^{\rm lo}_{i,\tau}\sum_c n_cg^{\rm lo}_{i,\tau}(c)
+    +\lambda^{\rm up}_{i,\tau}\sum_c n_cg^{\rm up}_{i,\tau}(c)\right)\\
+  &\ge-\eps\sum_{i,\tau}(\lambda^{\rm lo}_{i,\tau}+\lambda^{\rm up}_{i,\tau})d_{i,\tau}
+  \ge-\gamma_2\eps m,
+\end{aligned}
+\]
+Here, by~\eqref{eq:weighted-total-copies},
+\[
+  \sum_{i,\tau}d_{i,\tau}=\sum_v\widetilde d_v
+  \le m\max_{\ell\in[\ell_0]}\ell w_\ell=O(m),
+\]
+so we may take
+\[
+  \gamma_2=\left(\max_{\ell\in[\ell_0]}\ell w_\ell\right)
+      \max_{i,\tau}(\lambda^{\rm lo}_{i,\tau}+\lambda^{\rm up}_{i,\tau}).
+\]
+Finally, $\OPT(\Phi)\le\OPT(\Phi_{\le\ell_0})+M_{>\ell_0}$ gives
+\[
+\begin{aligned}
+  L_{\le\ell_0}^\Theta(\Snap_{\eps}(\Phi_{\le\ell_0}))+\rho M_{>\ell_0}
+  &\ge\rho\OPT(\Phi_{\le\ell_0})+\rho M_{>\ell_0}-\gamma_2\eps m\\
+  &\ge\rho\OPT(\Phi)-\gamma_2\eps m.
+\end{aligned}
+\]
+\end{proof}
+
+\begin{restatedclosenesslemma}[Closeness of the two snapshots]
+With probability at least $1-O(\eps)$ over $\{f_a\}$ and $g$, we have
+\[
+  \norm{\PsSnap(\Phi_{\le\ell_0})-\Snap_{\eps}(\Phi_{\le\ell_0})}_1
+  \le O(\eps m).
+\]
+\end{restatedclosenesslemma}
+
+We first bound the prefix errors, then count the clauses whose pseudo-biases may give labels different from $(s_j(C),i'(v_j(C)))$.
+\begin{proof}[Proof of Lemma~\ref{lem:weighted-snapshot-closeness}]
+\begin{samepage}
+\leavevmode\par
+\paragraph{Step 1. Bound the prefix errors.}
+Fix a variable $x_v$ with $\widetilde d_v>0$. Number its copies $r\in[\widetilde d_v]$ by clause arrival and then by their copy index.
+For $r>\lfloor\eps\widetilde d_v\rfloor$, the clause $C$ containing that copy satisfies $d_v^{\le C}\ge r>\eps\widetilde d_v$.
+If $\widetilde d_v<1/\eps$, all prefix degrees are kept exact.
+Otherwise, the range $(\eps\widetilde d_v,\widetilde d_v]$ meets only $O(\eps^{-3}\log(1/\eps))$ degree intervals.
+\end{samepage}
+
+Recall $D_0=0$, $D_a=\lfloor(1+\eps^3)^a\rfloor$ for $a\ge1$, and $\kappa=\lceil K\eps^{-7}\rceil$.
+Consider one such interval with $2D_a\ge\kappa$; $f_a$ samples all positive copies of $x_v$ independently with probability $\theta_a:=\kappa/(2D_a)$.
+The interval width satisfies
+\[
+  D_{a+1}-D_a\le\eps^3D_a+2=O(\eps^3D_a).
+\]
+Among the first $D_a+1$ copies of $x_v$, let $p_0$ count the positive copies and let $s_0$ count those selected by $f_a$.
+Since $\E[s_0]=\theta_ap_0\le(1+O(\eps^3))\kappa/2$, Bernstein's inequality gives
+\[
+  |s_0-\theta_ap_0|=O(\eps^3\kappa)
+\]
+except with probability $e^{-\Omega(\eps^6\kappa)}$.
+There are at most $O(\eps^3D_a)$ later copies of $x_v$ with prefix degree at most $D_{a+1}$.
+By a Chernoff bound, at most $O(\eps^3\kappa)$ positive copies among them are selected by $f_a$, except with probability $e^{-\Omega(\eps^3\kappa)}$.
+Thus, for every $C$ with $D_a<d_v^{\le C}\le D_{a+1}$,
+\[
+  |s_v^{\le C}-\theta_ap_v^{\le C}|
+  \le |s_0-\theta_ap_0|+(s_v^{\le C}-s_0)
+       +\theta_a(p_v^{\le C}-p_0)
+  =O(\eps^3\kappa).
+\]
+Together with $\theta_ap_v^{\le C}\le(1+O(\eps^3))\kappa/2$, this bound gives $s_v^{\le C}<\kappa$.
+Recall the prefix approximations
+\[
+  \widetilde d_v^{\le C}=D_a,\qquad
+  \widetilde p_v^{\le C}=\frac{2D_a}{\kappa}\min\{s_v^{\le C},\kappa\}.
+\]
+Multiplying the sampling error by $2D_a/\kappa$ and using the interval-width bound for the total degree gives
+\begin{equation}
+  |\widetilde p_v^{\le C}-p_v^{\le C}|=O(\eps^3d_v^{\le C}),\qquad
+  |\widetilde d_v^{\le C}-d_v^{\le C}|=O(\eps^3d_v^{\le C}).
+  \label{eq:weighted-prefix-errors}
+\end{equation}
+Both errors are zero when $2D_a<\kappa$.
+Taking a union bound over these intervals gives both estimates for every clause containing a copy with $r>\lfloor\eps\widetilde d_v\rfloor$, except with probability
+\[
+  O(\eps^{-3}\log(1/\eps))e^{-\Omega(\eps^6\kappa)}\le\eps^2,
+\]
+for a sufficiently large $K$ in the choice of $\kappa$.
+
+\paragraph{Step 2. Compare the bucket indices.}
+Fix a clause $C$ containing $x_v$ for which both estimates in~\eqref{eq:weighted-prefix-errors} hold.
+Using
+\[
+  \widetilde p_v=p_v^{\le C}+p_v^{>C},\qquad
+  \widetilde d_v=d_v^{\le C}+d_v^{>C},\qquad
+  \widetilde b_v=2\widetilde p_v/\widetilde d_v-1,
+\]
+the prefix error bounds give
+\[
+  \widetilde d_v^{\le C}+d_v^{>C}
+  \ge(1-O(\eps^3))\widetilde d_v,
+\]
+and, since $\widetilde p_v\le\widetilde d_v$,
+\[
+  \left|
+    \frac{2(\widetilde p_v^{\le C}+p_v^{>C})}
+         {\widetilde d_v^{\le C}+d_v^{>C}}
+    -\frac{2\widetilde p_v}{\widetilde d_v}
+  \right|=O(\eps^3).
+\]
+Clipping cannot increase the difference, so $|\widetilde b_v^{\,C}-b'_v|=O(\eps^3)$.
+The bucket index of $\widetilde b_v^{\,C}$ can differ from $i'(v)$ only if $\widetilde b_v+g(v)$ is within $\gamma_4\eps^3$ of an internal bucket endpoint, for a sufficiently large constant $\gamma_4$.
+Since $g(v)$ is uniform on an interval of length $2\eps$ and there are $L-1$ such endpoints, this event has probability $O(\eps^2)$.
+
+\paragraph{Step 3. Bound the coordinate distance.}
+The exclusions below only count label differences; both snapshots use all clauses of $\Phi_{\le\ell_0}$.
+Exclude copies with $r\le\lfloor\eps\widetilde d_v\rfloor$. Their number satisfies
+\[
+  \sum_v\lfloor\eps\widetilde d_v\rfloor
+  \le\eps\sum_v\widetilde d_v
+  \le\eps m\max_{\ell\in[\ell_0]}\ell w_\ell=O(\eps m).
+\]
+Also exclude all copies of a variable for which the positive or total prefix error bound in~\eqref{eq:weighted-prefix-errors} fails at some $C$ containing a copy with $r>\lfloor\eps\widetilde d_v\rfloor$.
+Finally, exclude all copies of any variable $x_v$ with $\widetilde b_v+g(v)$ within $\gamma_4\eps^3$ of an internal bucket endpoint.
+By Steps 1 and 2, the expected number of copies excluded for prefix errors or proximity to bucket endpoints is at most
+\[
+  O(\eps^2)\sum_v\widetilde d_v=O(\eps^2m).
+\]
+Markov's inequality shows that there are only $O(\eps m)$ excluded copies with probability at least $1-O(\eps)$.
+Each excluded copy belongs to one clause, so only $O(\eps m)$ clauses contain excluded copies.
+All other clauses have the same labels in the two snapshots.
+For each clause of length $\ell$ whose labels differ, the sum of the absolute changes in its one-endpoint and two-endpoint coordinates is at most
+\[
+  2\left(\ell+\binom\ell2\right)\le\ell_0(\ell_0+1).
+\]
+Summing over the $O(\eps m)$ clauses proves the distance bound.
+
+\end{proof}

@@ -1,0 +1,227 @@
+\newpage
+\section{Introduction}\label{sec:introduction}
+Quantum computing offers the possibility of substantial resource advantages over classical computation. Quantum algorithms for combinatorial optimization have been studied intensively over the past three decades
+\cite{FarhiEtAl2001Adiabatic,
+FarhiGoldstoneGutmann2014BoundedOccurrence,
+Hastings2018ShortPath,
+BassoEtAl2022QAOAHighDepth,
+DalzellEtAl2023MindTheGap,
+KapitEtAl2023RandomHypergraphXORSAT,
+ShaydulinEtAl2024ScalingAdvantage}.
+This body of work has provided some evidence of possible superpolynomial quantum speedups for certain optimization problems
+\cite{FarhiEtAl2025HighGirthMaxCut,
+LengZhengWu2023NonconvexSeparation,
+ChenLiuZhandry2022Filtering,
+PirnayEtAl2024InPrincipleAdvantage,
+Szegedy2022QuantumAdvantageSimplified,
+GilyenHastingsVazirani2021AdiabaticAdvantage,
+EldarHallgren2022LatticeApproximation,jordan2025optimization}.The main focus has traditionally been time complexity; for example, Shor's algorithm for integer factorization \cite{Shor1999} gives an exponential speedup over the best-known classical algorithms.   Nevertheless, establishing an unconditional superpolynomial quantum advantage in time complexity for optimization remains extremely challenging and is still largely open \cite{BernsteinVazirani1997, Watrous2018}. 
+
+Space is another crucial resource, especially in the
+quantum setting, where fault-tolerant qubits are scarce and costly \cite{FowlerMariantoniMartinisCleland2012, BabbushMcCleanGidneyBoixoNeven2021}. Streaming algorithms provide a natural framework for studying space-efficient quantum computation and for seeking quantum advantages in space usage \cite{LeGall2006, NayakTouchette2017, Kallaugher2022}. 
+Motivated by processing massive datasets\cite{BabcockBabuDatarMotwaniWidom2002, Muthukrishnan2005}, in the streaming model, data elements arrive sequentially, and the algorithm must process each element as it appears while using only limited working space. Because of their space efficiency, streaming algorithms have found many applications in the computation of statistics over data streams \cite{FlajoletMartin1985, AlonMatiasSzegedy1999} and the estimation of parameters of massive graphs \cite{BarYossefKumarSivakumar2002, McGregor2014}.
+Moreover, Niroula et al.~\cite{niroula2025realization} recently realized a quantum streaming algorithm on Quantinuum’s Helios trapped-ion quantum computer, using long-lived qubits that communicate with an external classical server. 
+
+These theoretical and experimental developments make it particularly important to understand how broadly quantum space advantages extend across natural and practical streaming optimization problems. Recently, Kallaugher, Parekh, and Voronova achieved the first exponential quantum space advantage for a natural streaming problem \cite{KPV23}. They gave a polylogarithmic-space quantum streaming algorithm that achieves a $0.4844$-approximation for Max-DiCut. In contrast, previous work of Chou, Golovnev, and Velusamy~\cite{CGV20} implies that any classical streaming algorithm achieving an approximation ratio better than $4/9 \approx 0.444$ requires $\Omega(\sqrt n)$ space. 
+Since Max-DiCut is only one particular Max-CSP, it naturally raises a broader question about the scope of quantum space advantages for streaming Max-CSPs. 
+\begin{quote}
+\textit{Which maximum constraint satisfaction problems (CSPs) admit an exponential quantum space advantage in the streaming model?}
+\end{quote}
+In this paper, we prove an exponential quantum space advantage for Max-$k$SAT in the streaming setting.  Max-\(k\)SAT is one of the most fundamental and widely studied problems in combinatorial optimization \cite{PapadimitriouYannakakis1991,Hastad2001OptimalInapproximability} and  it has played a central role in the development of approximation algorithms and hardness of approximation.  Our result also completes the classification of quantum space advantages for Boolean Max-2CSPs when combined with prior work.
+
+\subsection{Our contributions}
+Our main contribution is a polylogarithmic-space one-pass quantum streaming algorithm for Max-$k$SAT with approximation ratio $0.7426$.
+We assume throughout that the number $m$ of clauses is polynomial in $n$.
+\begin{theorem} \label{thm:main}
+For every fixed $k\ge 2$ and every $\delta\in(0,1)$, there is a one-pass quantum streaming algorithm that, on every Max-$k$SAT instance with $n$ variables, outputs a $0.7426$-approximation with probability at least $1-\delta$, using $O\!\left(\log^5 n \log\frac{2}{\delta}\right)$ qubits of space.
+\end{theorem}
+In contrast, prior work by \cite{CGV20} implies that achieving an approximation ratio better than $\sqrt{2}/2 \approx 0.7071$ for Max-$k$SAT requires $\Omega(\sqrt{n})$ space for any classical streaming algorithm.  
+
+\begin{figure}[t]
+\label{figure_1}
+  \centering
+  \makebox[\linewidth][l]{%
+  \hspace*{-5.69mm}%
+  \resizebox{\linewidth}{!}{\input{quantum_space_advantage_tikz.tex}}%
+}
+  \caption{One-pass streaming space for Max-$k$SAT, for fixed $k\geq 2$
+  and constant failure probability. The shaded region highlights the quantum
+  advantage for $\sqrt{2}/2<\alpha\leq 0.7426$.
+  Axis spacing and vertical connectors are schematic.
+  For $0.7426<\alpha<3/4$, the quantum curve uses the classical
+  $O(\sqrt{n})$ upper bound; the jump at $0.7426$ does not assert
+  a quantum lower bound.}
+  \label{fig:quantum-space-advantage}
+\end{figure}
+
+To better understand our result, we classify $2$-variable Boolean predicates $f \colon \{0,1\}^2 \to \{0,1\}$ into four standard types based on their truth tables: TR (depends on $\le 1$ input), OR (exactly one zero), XOR (depends on both inputs; exactly two zeros), and AND (exactly three zeros). For any $\Lambda \in \{\mathrm{OR}, \mathrm{XOR}, \mathrm{AND}\}$, the Max-2CSP problem is denoted $\text{Max-2E}\Lambda$ if its allowed predicate set $\mathcal{F}$ contains only $\Lambda$-type predicates (exact arity two), and $\text{Max-2}\Lambda$ if $\mathcal{F}$ also includes TR-type predicates. Identifying a predicate family with its contained types, every Boolean Max-2CSP is thus uniquely specified by a subset $\mathcal{F} \subseteq \{\mathrm{TR}, \mathrm{OR}, \mathrm{XOR}, \mathrm{AND}\}$.
+
+
+
+
+Combining Theorem~\ref{thm:main} (take $k=2$)  with the known results \cite{CGV20, KP22} gives a complete classification of quantum space advantages for Boolean Max-2CSPs, summarized in Table~\ref{tab:max2csp-quantum-advantage}. Previous work had already settled several cases.  
+\begin{itemize}
+    \item For pure OR-type constraints (Max-2EOR) and XOR-type constraints (Max-Cut), quantum streaming algorithms satisfy the same space lower bounds as classical algorithms~\cite{KP22}, and hence give no quantum space advantage. 
+    \item For AND-type constraints (Max-DiCut), Kallaugher, Parekh, and Voronova give a poly\-logarithmic-space quantum streaming algorithm achieving a $0.4844$-approximation~\cite{KPV23}, whereas the classical lower bound of Chou, Golovnev, and Velusamy rules out any ratio better than $4/9$ in $o(\sqrt n)$ space~\cite{CGV20}.
+\end{itemize}  
+Thus, only the TR+OR case, corresponding to Max-$2$OR / Max-$2$SAT, remained open. Our result closes this gap by showing that this problem also has a quantum space advantage in the streaming setting. 
+
+\begin{table}[ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.18\textwidth}p{0.22\textwidth}p{0.16\textwidth}p{0.20\textwidth}p{0.12\textwidth}}
+\toprule
+Type $\mathcal{F}$
+& Special case 
+& Classical 
+& Quantum 
+& Advantage \\
+\midrule
+TR
+& Trivial
+& $1$ [Folklore]
+& $1$ [Folklore]
+& No \\
+
+OR
+& Max-2EOR
+& $3/4$ \cite{CGV20}
+& $3/4$ \cite{KP22}
+& No \\
+
+TR + OR
+& Max-2SAT
+& $\sqrt{2}/2$ \cite{CGV20}
+& $\mathbf{[0.7426,3/4]}$ 
+& \textbf{Yes}\\ 
+
+XOR
+& Max-Cut 
+& $1/2$ \cite{CGV20}
+& $1/2$ \cite{KP22}
+& No \\ 
+
+AND
+& Max-DiCut 
+& $4/9$ \cite{CGV20}
+& $[0.4844,1/2]$ \cite{KPV23}
+& Yes \\
+\bottomrule
+\end{tabular}
+\caption{Classical and quantum one-pass streaming thresholds for Boolean Max-2CSPs with polylogarithmic space. The ``Classical'' and ``Quantum'' columns list the known threshold values from the cited works; an interval means that the quantum threshold is known to lie between the displayed lower and upper bounds. The last column indicates whether the quantum threshold is strictly better than the classical one. The bold entry is the new quantum advantage for Max-2SAT established in this work. Chou, Golovnev, and Velusamy~\cite{CGV20} show that the streaming approximability of every Boolean Max-2CSP is governed by the five canonical problems. More precisely, for any predicate family $\mathcal F$, $\operatorname{Max-CSP}(\mathcal F)$ is exactly as hard to approximate as the hardest problem in these predicates.}
+\label{tab:max2csp-quantum-advantage}
+\end{table}
+
+To complement our results, we also prove a quantum streaming lower bound for Max-$k$SAT. This is achieved via a simple reduction from Max-Cut, leveraging its known quantum streaming space lower bound \cite{KP22}. The proof is deferred to Appendix~\ref{app:maxksat-lower-bound}.
+
+\begin{theorem}[Quantum streaming lower bound for Max-$k$SAT] \label{thm:maxksat-quantum-lb}
+Fix any $k\ge2$ and $\gamma>0$, any one-pass quantum streaming algorithm that achieves a $(0.75+\gamma)$-approximation for Max-$k$SAT requires $\Omega(n)$ qubits of space.
+\end{theorem}
+
+Intuitively, the quantum streaming advantage for Max-$k$SAT appears to rely on the non-uniformity of clause lengths. This is different from Max-DiCut, where all constraints are uniform arity-2 AND-type predicates. In contrast, for $k\ge 3$, Exact Max-$k$SAT admits a trivial $(1-2^{-k})$-approximation in logarithmic space via the random-assignment guarantee, so Theorem~\ref{thm:maxksat-quantum-lb} does not extend to the exact-arity setting. This separates Max-$k$SAT from Exact Max-$k$SAT in terms of quantum streaming space advantage.
+
+\subsection{Related work}
+\label{sec:prior-work}
+
+\paragraph{Classical streaming bounds for Max-$k$SAT} The streaming approximability of CSPs has been studied for more than a decade; see the surveys and expository articles~\cite{Sud22, Ass23, Sin25}. Chou, Golovnev, and Velusamy \cite{CGV20} established a tight space complexity threshold for Max-$k$SAT around the approximation ratio of $\sqrt{2}/2 \approx 0.707$. Specifically, they demonstrated that a $(\sqrt{2}/2 - \varepsilon)$-approximation  streaming algorithm for Max-$k$SAT can be achieved using only $O(\varepsilon^{-2} \log n)$ space. On the negative side, they proved a matching lower bound: for any $k \ge 2$ and $\varepsilon > 0$, any streaming algorithm achieving a strictly better approximation ratio of $(\sqrt{2}/2 + \varepsilon)$ for Max-$k$-SAT requires $\Omega(\sqrt{n})$ space.
+
+\paragraph{Quantum space advantages in streaming setting} 
+The study of quantum space advantages in streaming began with Le Gall~\cite{LeGall2006}, who obtained an exponential separation in an online model with a prescribed arrival order.  For the standard streaming model, Gavinsky, Kempe, Kerenidis,
+Raz, and deWolf~\cite{GavinskyKempeKerenidisRazDeWolf2008} established an $O(\log n)$-qubit versus $\Omega(\sqrt n)$-bit separation for a promise problem based on Boolean Hidden Matching.  Since these early problems were tailored to exhibit a separation, subsequent work sought quantum advantages for natural problems of independent classical
+interest.  Several natural candidates such as $\mathrm{Dyck}(2)$ language \cite{JainNayak2014,NayakTouchette2017} and triangle counting \cite{Kallaugher2022} were subsequently studied. Kallaugher, Parekh, and Voronova achieved the first exponential quantum space advantage for a natural streaming problem \cite{KPV23}. They gave a polylogarithmic-space quantum streaming algorithm that achieves a $0.4844$-approximation for Max-DiCut. In contrast, previous work of Chou, Golovnev, and Velusamy~\cite{CGV20} implies that any classical streaming algorithm achieving an approximation ratio better than $4/9 \approx 0.444$ requires $\Omega(\sqrt n)$ space. 
+In the multi-pass setting, Montanaro, Hamoudi and Magniez~\cite{Montanaro2016,HamoudiMagniez2019}
+obtained quantum improvements for frequency-moment estimation. Feng, Xu, Li, Guo, and Lin~\cite{FengEtAl2026} recently established an exponential quantum space advantage for Shannon entropy estimation. 
+Zhao et al.~\cite{zhao2026exponential} proved exponential quantum space advantages for classification and dimension reduction by processing random classical data samples sequentially.
+
+
+\paragraph{Quantum advantages in communication complexity.}
+Buhrman, Cleve, and Wigderson~\cite{BuhrmanCleveWigderson1998} established the first exponential quantum advantage in zero-error two-party communication.
+Subsequent work established exponential separations in several other two-party models~\cite{Raz1999,BarYossefJayramKerenidis2008,KlartagRegev2011,commGavinsky16,commGavinsky19,commGavinsky20,commGRT22,commGGJL25}.
+Gavinsky et al.~\cite{GavinskyKempeKerenidisRazDeWolf2008} established an exponential one-way separation based on Boolean Hidden Matching; our quantum primitive builds on their protocol.
+Gavinsky~\cite{commGavinsky26} gave a total Boolean function with polylogarithmic quantum communication and a polynomial randomized lower bound.
+Arunachalam, Girish, and Lifshitz~\cite{ArunachalamGirishLifshitz2023} demonstrated an exponential advantage using one clean qubit.
+In number-on-forehead (NOF) communication, Gavinsky and Pudl\'ak~\cite{GavinskyPudlak2008} gave a separation for a relation under non-interactive communication.
+Yang and Zhang obtained simultaneous~\cite{YangZhang2025Simultaneous} and one-way~\cite{YangZhang2026OneWay} separations for relations.
+Wang and Wu~\cite{WangWu2026ConservativeLifting} showed a separation for a partial Boolean function in the  one-way conservative NOF model, where the last player only has a restricted view. 
+Wang, Wu, and Yang~\cite{WangWuYang2026} obtained an exponential separation for an explicit partial Boolean function against unrestricted three-party NOF interaction, using one clean qubit on the quantum side.
+
+
+
+
+
+\subsection{Technical overview}
+Our proof extends the snapshot-to-pseudosnapshot framework of Kallaugher, Parekh, and Voronova \cite{KPV23}. We first construct a statistic by grouping and counting the  clauses, called a weighted snapshot; a linear combination of its coordinates gives a good approximation to the optimal value of Max-$k$SAT. 
+Next,  we replace the snapshot by a pseudo-snapshot that can be estimated in the one pass streaming model.  Finally, we use quantum sketches to estimate the pseudo-snapshot and get a good approximation of  the optimal value. The following three steps give a high-level overview of our approach.
+
+\paragraph{Step 1. From Max-$k$SAT to a weighted snapshot.}
+We extend the snapshot approach of Saxena, Singer, Sudan, and Velusamy~\cite{saxena2023improved} from Max-DiCut to Max-$k$SAT. For an instance $\Phi$ with $m$ clauses, fix a length cutoff $\ell_0$ and write $\Phi_{\le\ell_0}$ for its short clauses. Weight their literal occurrences according to clause length. A variable's weighted bias is the difference between its positive and negative weighted degrees divided by its total weighted degree. We partition these biases into intervals, called buckets, and round each variable independently with a probability determined by its bucket. The cutoff, weights, buckets, and rounding probabilities form the rounding profile $\Theta$.
+
+Label each literal by its sign and its variable's bucket. The weighted snapshot $\Snap(\Phi_{\le\ell_0})$ counts clauses of each length with a specified label at one position or specified labels at two positions; these are the  one-endpoint and two-endpoint coordinates of $\Snap(\Phi_{\le\ell_0})$. For clauses of length one or two, the expected number satisfied by rounding is a linear combination of these counts. Longer clauses depend on more than two labels, so computing their exact satisfaction probabilities would require querying more endpoints. Instead, for lengths $3\le\ell\le\ell_0$, we choose a linear combination of the same counts. This gives the short-clause score $L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0}))$.
+
+Let $\rho$ be the target approximation ratio and $\OPT(\Phi)$ the maximum number of simultaneously satisfiable clauses. We choose the rounding probabilities so that every clause longer than $\ell_0$ is satisfied with probability at least $\rho$. If $M_{>\ell_0}$ is the number of these long clauses, our goal is to obtain the full score
+\[
+L^\Theta(\Phi)=L_{\le\ell_0}^\Theta(\Snap(\Phi_{\le\ell_0}))+\rho M_{>\ell_0},
+\qquad
+\rho\,\OPT(\Phi)\le L^\Theta(\Phi)\le\OPT(\Phi).
+\]
+For a fixed profile $\Theta$, a linear program $\mathsf{LP}(\Theta)$  chooses the score coefficients and maximizes $\rho$ subject to linear constraints ensuring these bounds. 
+
+
+
+We use 
+an AI agent to  repeatedly adjust $\Theta$, solve the linear program $\mathsf{LP}(\Theta)$, and use the resulting ratio to guide the next adjustment. We verify the final profile $\Theta$ and  rational coefficients exactly, obtaining $\rho=0.742694813$. Figure~\ref{fig:proof-overview} illustrates this search and verification process; and we give more details about this AI agent numerical search at the end of the section.
+
+\begin{figure}[htbp]
+    \centering
+    \makebox[\linewidth][l]{%
+        \hspace*{-6.7mm}% Horizontal offset: negative moves left.
+        \resizebox{\linewidth}{!}{%
+            \input{AI_agent.tikz}%
+        }%
+    }
+    \caption{AI agent assisted parameter search and exact verification for the weighted snapshot.}
+    \label{fig:proof-overview}
+\end{figure}
+
+\begin{samepage}
+\paragraph{Step 2. The weighted snapshot and pseudo-snapshot are close.}
+The labels above depend on final biases, which are unavailable when a clause arrives. Following Kallaugher, Parekh, and Voronova~\cite{KPV23}, we replace them by labels computed from approximate prefix degrees, counting occurrences up to the current clause, and exact suffix degrees, counting later occurrences. We use weighted total and positive degrees to form the corresponding pseudo-biases. Counting clauses by the resulting labels defines the weighted pseudo-snapshot $\PsSnap(\Phi_{\le\ell_0})$.
+
+For a small precision parameter $\eps>0$, we prove that this replacement preserves the score guarantee up to $O(\eps m)$ additive error. Thus it remains to estimate $L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))$ within $\eps m$ in one pass.
+
+\end{samepage}
+
+\paragraph{Step 3. Quantum estimation of the pseudo-snapshot score.}
+Kallaugher, Parekh, and Voronova~\cite{KPV23} maintain prefix degree information in superposition for each degree range and jointly query the two endpoints of each arriving edge. We adapt this idea to the one-endpoint and two-endpoint counts required by our score. Each degree level $a$ corresponds to an interval $(D_a,D_{a+1}]$; we maintain sketches for each level and each pair of levels.
+
+As a clause arrives, threshold queries estimate whether its endpoints' prefix counts exceed specified thresholds. For a total prefix degree $d$, subtracting the upper-threshold indicator from the lower-threshold indicator selects a degree level:
+\[
+\1[D_a<d\le D_{a+1}]=\1[d>D_a]-\1[d>D_{a+1}].
+\]
+Pair-query outputs estimate products of two threshold indicators. Combining their outputs for the lower and upper thresholds therefore estimates the contribution from endpoints simultaneously satisfying the required conditions.
+
+Once a query selects one or two variables from the current clause, the sketch counts their suffix degrees exactly during the rest of the stream. Combining these with the tested prefix values gives the corresponding pseudo-labels and hence the coordinate estimates. We sum over the degree levels, combine the estimates with the score coefficients, and average repeated sketches to obtain an estimate $\widehat L_{\le\ell_0}$ that, with constant probability, satisfies
+\[
+\left|\widehat L_{\le\ell_0}-L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))\right|\le\eps m.
+\]
+Adding $\rho M_{>\ell_0}$ and subtracting $O(\eps m)$ to account for both approximation and estimation errors gives a $(\rho-O(\eps))$-approximation, since $\OPT(\Phi)\ge m/2$. Choosing a sufficiently small constant $\eps$ gives the claimed $0.7426$-approximation. Independent repetitions and a median increase the success probability to $1-\delta$, using $O(\log^5 n\log(2/\delta))$ space.
+
+
+
+
+
+
+
+
+
+
+\paragraph{AI agent  numerical search.}
+An AI agent automated the search for the profile and coefficients  by repeatedly updating $\Theta$ and solving  $\mathsf{LP}(\Theta)$, reducing the need for manual parameter tuning.
+As the number of buckets grew, constructing the full LP became impractical.
+The agent instead solved an LP with selected constraints, found constraints violated by its solution, and added them before solving again.
+For longer clauses, it grouped labels and shared two-endpoint coefficients within each pair of groups, while keeping separate one-endpoint coefficients for each label.
+For these clauses, it checked all LP constraints without listing every label combination.
+These changes supported a search with 1000 buckets.
+An independent program verified the final rational coefficients exactly, yielding $\rho=0.742694813$.

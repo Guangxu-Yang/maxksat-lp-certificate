@@ -1,0 +1,72 @@
+\section{Quantum algorithm for Max-\texorpdfstring{$k$}{k}SAT}
+\label{subsec:maxksat-final-algorithm}
+In this section, we put everything together and  prove Theorem~\ref{thm:main}. Moreover, we   combine the  pseudo-snapshot estimation with its score guarantee to obtain the $0.7426$-approximation.
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Take the rounding profile and coefficients from the snapshot score bounds in Lemma~\ref{lem:maxksat-weighted-snapshot-bound}, with $\rho=0.742694813$, and the additive-error constants $\gamma_0,\gamma_1$ from the pseudo-snapshot score guarantee in Theorem~\ref{thm:weighted-pseudosnapshot-to-value}.
+Choose $0<\eps\le1/100$ so that this score guarantee holds with probability at least $15/16$ and
+\[
+  2(\gamma_1+2)\eps\le\rho-0.7426.
+\]
+
+Recall $D_0=0$, $D_a=\lfloor(1+\eps^3)^a\rfloor$ for $a\ge1$, and $\kappa=\lceil K\eps^{-7}\rceil$.
+The bits $f_a$ sample positive copies independently with probability $\kappa/(2D_a)$ when $2D_a\ge\kappa$, and $g(v)\sim\Unif[-\eps,\eps]$ is the noise shared by all clauses containing $x_v$.
+Independently of all sampling bits and $g$, each $B_a$ is uniform on $\{\lceil K_{\mathrm{base}}D_{a+1}\rceil,\ldots,\lceil2K_{\mathrm{base}}D_{a+1}\rceil\}$ and enters the prefix counts as $\Gamma_a(d,c)=d+B_ac$.
+All estimators in a trial share $\omega=(\{f_a\},g,\{B_a\})$.
+
+\paragraph{Algorithm.}
+The input is $\Phi_{\mathrm{orig}}=(C_1,\ldots,C_m)$ and $\delta\in(0,1)$.
+As each clause arrives, remove repeated literals and discard clauses containing both a variable and its negation. Let $\Phi$ be the remaining instance and
+\[
+T:=\#\{\nu\in[m]:\exists v\in[n],\ \{x_v,\neg x_v\}\subseteq C_\nu\}.
+\]
+Maintain $M_{>\ell_0}=\#\{C\in\Phi:|C|>\ell_0\}$ exactly and run $R_{\mathrm{out}}=\Theta(\log(2/\delta))$ independent trials in parallel:
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.2em,topsep=0.2em]
+  \item In each trial, sample independent public randomness $\omega$ and run the score estimator with $\eps m$ error from Lemma~\ref{lem:maxksat-pairwise-estimator} on $\Phi_{\le\ell_0}$, obtaining $\widehat L_{\le\ell_0}$.
+  \item After the stream, each trial outputs
+  \[
+    Y:=\max\left\{0,\widehat L_{\le\ell_0}
+      +\rho M_{>\ell_0}-(\gamma_0+1)\eps m\right\}.
+  \]
+  \item Return $Z:=T+Z_0$, where $Z_0:=\operatorname{median}(Y_1,\ldots,Y_{R_{\mathrm{out}}})$ and $Y_r$ is the output of trial $r$.
+\end{enumerate}
+
+\paragraph{Approximation guarantee.}
+For one trial, Theorem~\ref{thm:weighted-pseudosnapshot-to-value} and Lemma~\ref{lem:maxksat-pairwise-estimator} give, simultaneously with probability at least $7/8$,
+\[
+  \rho\,\OPT(\Phi)-\gamma_1\eps m
+  \le L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))
+    +\rho M_{>\ell_0}-\gamma_0\eps m
+  \le\OPT(\Phi),
+\]
+\[
+  \left|\widehat L_{\le\ell_0}
+    -L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))\right|\le\eps m.
+\]
+Substituting the second inequality into the first yields
+\[
+  \rho\,\OPT(\Phi)-(\gamma_1+2)\eps m\le Y\le\OPT(\Phi).
+\]
+A Chernoff bound shows that this interval contains a strict majority of the trial outputs with probability at least $1-\delta$, and hence contains $Z_0$.
+Since $\OPT(\Phi_{\mathrm{orig}})=T+\OPT(\Phi)$,
+\[
+  \rho\,\OPT(\Phi_{\mathrm{orig}})-(\gamma_1+2)\eps m
+  \le T+\rho\,\OPT(\Phi)-(\gamma_1+2)\eps m
+  \le Z\le\OPT(\Phi_{\mathrm{orig}}).
+\]
+A uniformly random assignment satisfies each input clause with probability at least $1/2$, so $\OPT(\Phi_{\mathrm{orig}})\ge m/2$.
+Our choice of $\eps$ gives
+\[
+  0.7426\,\OPT(\Phi_{\mathrm{orig}})\le Z\le\OPT(\Phi_{\mathrm{orig}}).
+\]
+
+\paragraph{Space.}
+Each trial uses $O_\eps(\log^5(n+m))$ qubits and the same number of classical bits by Lemma~\ref{lem:maxksat-pairwise-estimator}; the exact counters use $O(\log m)$ classical bits.
+Thus the total space is
+\[
+  O\!\left(\log^5(n+m)\log\frac2\delta\right)
+\]
+qubits and classical bits.
+The public random bits are not charged to the working space.
+For $m=n^{O(1)}$ and $\delta\le1/2$, this is $O(\log^5 n\log(1/\delta))$; for larger $\delta$, a constant number of trials suffices.
+\end{proof}

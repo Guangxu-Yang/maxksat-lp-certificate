@@ -1,0 +1,88 @@
+\theoremstyle{plain}
+\newtheorem*{restatedthresholdlemma}{Lemma~\ref{lem:nonwrapping-threshold-invariant}}
+\newtheorem*{restatedoneendpointbudgetlemma}{Lemma~\ref{lem:good_label_budget}}
+\theoremstyle{definition}
+
+\subsection{Live labels and prefix counts}
+\label{app:one-endpoint-threshold-proof}
+
+Fix a sub-sketch and a label $F(u,t)$ that it queries, where $F$ is $H$ or $E$. For this fixed family and variable, the queried level $t$ is fixed, and at least one ordinary $+1$ update occurs between consecutive queries of $F(u,t)$. Immediately before a query, let $T$ be its live set, let $d_u$ count the ordinary literal-copy updates applied to this chain so far and $c_u$ count its additional $B_a$-shift updates. The elementary shifts inside a $B_a$-shift update are not counted again in $d_u$. Set $c_u=0$ for a family with no additional updates.
+
+\begin{restatedthresholdlemma}
+Suppose $1\le t<M$ and, before each query of $F(u,t)$, the sub-sketch has used fewer than $M$ elementary shifts in total. Then, immediately before each such query,
+\[
+F(u,t)\in T
+\quad\Longleftrightarrow\quad
+d_u+B_a c_u\ge t.
+\]
+\end{restatedthresholdlemma}
+
+\begin{proof}[Proof of Lemma~\ref{lem:nonwrapping-threshold-invariant}]
+The first $M-1$ elementary shifts use distinct, initially live spare labels. Each shift on $F(u,\cdot)$ inserts a live label at level $1$ and moves the previous labels forward by one. Since the sub-sketch only deletes level $t$ of this chain, its lower levels always satisfy
+\[
+F(u,r)\in T
+\quad\Longleftrightarrow\quad
+r\le d_u+B_ac_u
+\qquad(1\le r<t).
+\]
+Before the first query, the same equivalence holds at $r=t$. After a failed query deletes $F(u,t)$, the next query follows at least one update on this chain. If $t>1$, then $d_u+B_ac_u\ge t$ at deletion, so
+\[
+F(u,t-1)\in T
+\xrightarrow{\text{next shift}}
+F(u,t)\in T;
+\]
+if $t=1$, the next shift inserts a fresh spare label. Further shifts keep level $t$ live. If level $t$ has not yet been reached, no query can delete it, and it becomes live precisely when the number of shifts on this chain reaches $t$. This proves the equivalence before every query.
+\end{proof}
+
+\subsection{Queried levels and numbers of shifts}
+\label{app:one-endpoint-budget-proof}
+
+\begin{restatedoneendpointbudgetlemma}[No-wrap event for one-endpoint sketches]
+For each high-degree interval $a$, let $X_a$ count all positive literal copies selected by $f_a$ over the whole stream. For a sufficiently large constant $K_\eps$, define
+\[
+\mathcal G_1:=
+\bigcap_{a:\,D_a\ge\kappa/2}
+\left\{X_a\le K_\eps\frac{m}{D_a}\right\}.
+\]
+Then $\Pr[\mathcal G_1]\ge1-1/160$. Choosing $\gamma_\eps$ in $M=\lceil\gamma_\eps m\rceil$ sufficiently large ensures that every queried level satisfies $1\le t<M$ and, on $\mathcal G_1$, every one-endpoint sub-sketch performs fewer than $M$ elementary shifts over the whole stream.
+\end{restatedoneendpointbudgetlemma}
+
+\begin{proof}[Proof of Lemma~\ref{lem:good_label_budget}]
+By \eqref{eq:weighted-total-copies},
+\[
+\sum_v\widetilde p_v\le\sum_v\widetilde d_v
+\le m\max_{\ell\in[\ell_0]}\ell w_\ell=O(m).
+\]
+In a low-degree interval, $D_{a+1}=O_\eps(1)$ and $B_a=O_\eps(1)$, so each copy applies $O_\eps(1)$ shifts and each sub-sketch uses $O_\eps(m)$ shifts.
+
+For a high-degree interval $a$, let $N=O(m)$ be the number of positive literal copies. Then
+\[
+X_a\sim\mathrm{Bin}\!\left(N,\frac{\kappa}{2D_a}\right),
+\qquad
+\mathbb E[X_a]=O_\eps(m/D_a).
+\]
+A Chernoff bound gives
+\[
+\Pr\!\left[X_a>K_\eps\frac{m}{D_a}\right]
+\le\exp\!\left(-c_\eps\frac{m}{D_a}\right),
+\]
+where $c_\eps$ can be made arbitrarily large by increasing $K_\eps$. There are $O_\eps(1)$ degree intervals in each range $D_a\in[m/2^{r+1},m/2^r]$, and $O_\eps(1)$ intervals with $D_a>m$, since $D_A=O_\eps(m)$. Thus, for sufficiently large $K_\eps$,
+\[
+\Pr[\mathcal G_1^c]
+\le O_\eps(1)\sum_{r\ge0}\exp(-c'_\eps 2^r)
+<\frac1{160}.
+\]
+On $\mathcal G_1$, each high-degree sub-sketch uses at most $O(m)$ ordinary shifts and
+\[
+B_aX_a
+\le(2K_{\mathrm{base}}D_{a+1}+1)K_\eps\frac{m}{D_a}
+=O_\eps(m)
+\]
+additional shifts, since $D_{a+1}\le(1+\eps^3)D_a+2$. This bound holds for every allowed $B_a$, so $\mathcal G_1$ depends only on the sampling bits.
+
+The queried levels are $B_ac+d$ and $B_ac+d+1$ in the low-degree case, with $D_a<d\le D_{a+1}$ and $0\le c\le d$; these are $O_\eps(1)$. In the high-degree case they are
+\[
+D_a+1,\qquad D_{a+1}+1,\qquad qB_a\quad(1\le q\le\kappa),
+\]
+all of which are $O_\eps(m)$. A sufficiently large $\gamma_\eps$ makes these positive levels and all the preceding shift bounds strictly less than $M$.
+\end{proof}

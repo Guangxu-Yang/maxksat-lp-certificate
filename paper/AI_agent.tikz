@@ -1,0 +1,295 @@
+% Editable publication figure; darker palette inspired by the supplied Fig. 1.
+% Compile with pdflatex.
+% For embedding: copy the color definitions and tikzpicture into figure*.
+% Packages: amsmath, amssymb, tikz. Libraries: arrows.meta, calc.
+% All histograms and the LP region are schematic, not experimental results.
+% Robot/control-console motif inspired by arXiv:2511.08493, Fig. 1.
+
+\usetikzlibrary{arrows.meta,calc}
+\definecolor{ink}{HTML}{343A3C}
+\definecolor{blue}{HTML}{247F9F}
+\definecolor{teal}{HTML}{258F83}
+\definecolor{ochre}{HTML}{CA8643}
+\definecolor{violet}{HTML}{AF7239}
+\definecolor{sage}{HTML}{287F69}
+
+\begin{tikzpicture}[
+  font=\sffamily\small,text=ink,draw=ink,line cap=round,line join=round,
+  flow/.style={-{Stealth[length=3.7pt,width=3.2pt]},draw=ink!90,line width=.85pt},
+  control/.style={-{Stealth[length=3.7pt,width=3.2pt]},draw=blue,line width=.8pt},
+  feedback/.style={-{Stealth[length=3.7pt,width=3.2pt]},draw=blue!90,
+    line width=.7pt,dash pattern=on 2.5pt off 2.5pt},
+  smallmath/.style={font=\sffamily\scriptsize,text=ink}
+]
+% Uniform panel grid. Restrained color distinguishes roles without prose.
+\foreach \x/\n/\col in {0/1/blue,3.65/2/teal,7.3/3/teal,10.95/4/teal,14.6/5/sage} {
+  \draw[draw=ink!35,fill=white,line width=.55pt,rounded corners=5pt]
+    (\x-1.55,-1.52) rectangle (\x+1.55,1.55);
+  \draw[draw=\col!95,line width=1.3pt] (\x-.48,1.55)--(\x+.48,1.55);
+  \node[circle,draw=\col!85,fill=\col!8,minimum size=.35cm,inner sep=0pt,
+    text=\col,font=\sffamily\scriptsize] at (\x,1.55) {\n};
+  \draw[draw=ink!20,line width=.5pt] (\x-1.22,-.96)--(\x+1.22,-.96);
+}
+\foreach \x in {1.55,5.2,8.85,12.5}
+  \draw[flow] (\x+.08,.04)--(\x+.47,.04);
+
+% 1 -- Weighted variable bias and representative buckets.
+\begin{scope}
+  \node[smallmath] at (0,1.13) {Bias};
+  \foreach \x/\v in {-1/i,0/j,1/k} {
+    \node[circle,draw=blue!90,fill=blue!9,minimum size=.36cm,inner sep=0pt,
+      font=\scriptsize] at (\x,.64) {$x_{\v}$};
+    \draw[flow,draw=blue!95,line width=.75pt] (\x,.39)--(\x,.07);
+  }
+  \foreach \x/\shade/\lab in {-1/28/low,0/43/mid,1/57/high} {
+    % Curved base, ellipse at the rim, and a narrow highlight.
+    \path[fill=blue!\shade] (\x-.34,-.06)--(\x-.265,-.64)
+      .. controls (\x-.15,-.73) and (\x+.15,-.73) .. (\x+.265,-.64)
+      --(\x+.34,-.06)--cycle;
+    \draw[draw=ink!85,line width=.85pt] (\x-.34,-.06)--(\x-.265,-.64)
+      .. controls (\x-.15,-.73) and (\x+.15,-.73) .. (\x+.265,-.64)
+      --(\x+.34,-.06);
+    \draw[draw=white,line width=1pt] (\x-.23,-.2)--(\x-.19,-.53);
+    \draw[draw=ink!80,fill=blue!6,line width=.75pt]
+      (\x,-.06) ellipse [x radius=.34,y radius=.075];
+    \node[font=\sffamily\tiny,text=ink] at (\x,-.4) {\lab};
+  }
+  \node[smallmath] at (0,-1.23) {Buckets};
+\end{scope}
+
+% 2 -- Histogram and count matrix, with matched dimensions.
+\begin{scope}[xshift=3.65cm]
+  \node[font=\sffamily\fontsize{7}{8}\selectfont,align=center] at (-.77,1.04) {One-\\endpoint};
+  \node[font=\sffamily\fontsize{7}{8}\selectfont,align=center] at (.72,1.04) {Two-\\endpoint};
+  \foreach \y in {-.17,.17,.51}
+    \draw[draw=ink!14,line width=.4pt] (-1.25,\y)--(-.23,\y);
+  \draw[draw=ink!85,line width=.65pt] (-1.25,.63)--(-1.25,-.53)--(-.2,-.53);
+  \foreach \x/\h/\shade in {-1.12/.38/65,-.88/.78/90,-.64/.57/75,-.4/1.02/100} {
+    \path[fill=teal!\shade,rounded corners=.8pt]
+      (\x,-.52) rectangle +(.155,\h);
+  }
+  \draw[draw=ink!65,fill=white,line width=.45pt,rounded corners=1pt]
+    (.19,-.55) rectangle (1.25,.51);
+  \foreach \i in {0,1,2,3} {
+    \foreach \j in {0,1,2,3} {
+      \pgfmathtruncatemacro{\shade}{35+mod(21*\i+29*\j,66)}
+      \path[fill=teal!\shade,rounded corners=.4pt]
+        (.215+.255*\i,-.525+.255*\j) rectangle +(.24,.24);
+    }
+  }
+  \node[smallmath] at (0,-1.23) {Snapshot};
+\end{scope}
+
+% 3 -- Two visual statistics are weighted and combined into a score.
+\begin{scope}[xshift=7.3cm]
+  % U: a miniature count histogram, matching panel 2.
+  \draw[draw=ink!75,line width=.5pt] (-1.24,.91)--(-1.24,.25)--(-.43,.25);
+  \foreach \x/\h/\shade in {-1.14/.22/65,-.96/.46/90,-.78/.34/75,-.6/.59/100}
+    \path[fill=teal!\shade,rounded corners=.6pt]
+      (\x,.26) rectangle +(.125,\h);
+  % P: a miniature pair-count matrix, using the same palette.
+  \draw[draw=ink!55,fill=white,line width=.45pt,rounded corners=1pt]
+    (-1.17,-.73) rectangle (-.44,-.02);
+  \foreach \i in {0,1,2} {
+    \foreach \j in {0,1,2} {
+      \pgfmathtruncatemacro{\shade}{40+mod(21*\i+29*\j,61)}
+      \path[fill=teal!\shade,rounded corners=.3pt]
+        (-1.15+.237*\i,-.71+.23*\j) rectangle +(.215,.209);
+    }
+  }
+  % Two weighted contributions enter the same summation node.
+  \draw[flow,draw=teal,line width=.7pt] (-.39,.56)
+    .. controls (-.2,.56) and (-.29,.18) .. (-.08,.14);
+  \draw[flow,draw=teal,line width=.7pt] (-.39,-.38)
+    .. controls (-.19,-.38) and (-.3,.02) .. (-.08,.06);
+  \node[circle,fill=ochre!25,draw=ink!75,line width=.75pt,
+    minimum size=.53cm,inner sep=0pt,font=\sffamily\tiny,text=ink]
+    at (.19,.1) {Sum};
+  % The constant ternary contribution is a small auxiliary input.
+  \draw[flow,draw=ochre,line width=.75pt] (.5,.1)--(.65,.1);
+  % A score dial: qualitative indicator only, no fabricated numerical value.
+  \draw[draw=ink!80,fill=ochre!9,line width=.8pt]
+    (1.07,.1) circle (.36);
+  \draw[draw=ochre!60,line width=1.6pt]
+    (1.07,.1) ++(35:.265) arc[start angle=35,end angle=145,radius=.265];
+  \foreach \a in {35,62.5,90,117.5,145}
+    \draw[draw=ink!65,line width=.45pt]
+      (1.07,.1) ++(\a:.245)--++(\a:.052);
+  \draw[draw=ochre!90!black,line width=.95pt] (1.07,.1)--++(58:.245);
+  \fill[ink!80] (1.07,.1) circle (.026);
+  \node[font=\sffamily\scriptsize] at (1.07,-.51) {Score};
+  \node[smallmath] at (0,-1.23) {Snapshot score};
+\end{scope}
+
+% 4 -- Actual supporting lines of the schematic feasible polygon.
+\begin{scope}[xshift=10.95cm]
+  \node[font=\sffamily\bfseries\small,text=violet] at (0,1.05) {LP};
+  \draw[flow,draw=ink!70,line width=.6pt] (-1.12,-.69)--(1.12,-.69);
+  \draw[flow,draw=ink!70,line width=.6pt] (-1.12,-.69)--(-1.12,.76);
+  \draw[draw=ink!45,line width=.6pt] (-1.04,.033)--(-.1,.817);
+  \draw[draw=ink!45,line width=.6pt] (-.63,.779)--(.99,.148);
+  \draw[draw=ink!45,line width=.6pt] (.55,.651)--(.89,-.611);
+  \draw[draw=ink!85,fill=ochre!45,line width=.95pt]
+    (-.9,-.5)--(-.9,.15)--(-.3,.65)--(.65,.28)--(.86,-.5)--cycle;
+  \draw[flow,draw=violet,line width=1.1pt] (-.23,-.36)--(.65,.28);
+  \fill[ochre!18] (.65,.28) circle (.095);
+  \fill[violet] (.65,.28) circle (.04);
+  \node[smallmath,text=violet,anchor=east] at (1.36,.82) {Bound};
+  \node[smallmath] at (0,-1.23) {Candidate coefficients};
+\end{scope}
+
+% 5 -- Rationalization and a vector certificate with a folded corner.
+\begin{scope}[xshift=14.6cm]
+  \node[smallmath] at (-.95,1.04) {Round};
+  \draw[flow,draw=sage!80] (-.4,1.04)--(.15,1.04);
+  \node[smallmath] at (.62,1.04) {Check};
+  \path[fill=sage!12] (-.61,-.7)--(.62,-.7)--(.62,.49)--(.4,.7)--(-.61,.7)--cycle;
+  \draw[draw=ink!85,line width=.85pt]
+    (-.61,-.7)--(.62,-.7)--(.62,.49)--(.4,.7)--(-.61,.7)--cycle;
+  \draw[draw=ink!70,fill=sage!6,line width=.65pt] (.4,.7)--(.4,.49)--(.62,.49);
+  \foreach \y in {.32,.02,-.28} {
+    \draw[draw=sage!50,line width=1.3pt] (-.4,\y)--(.06,\y);
+    \draw[draw=sage,line width=1.1pt] (.24,\y-.005)--(.31,\y-.065)--(.45,\y+.09);
+  }
+  \node[smallmath] at (0,-1.23) {Verified coefficients};
+\end{scope}
+
+% The agent is an articulated robot at a console. No raster assets.
+\begin{scope}[xshift=-2.8cm]
+\draw[draw=ink!35,fill=white,line width=.6pt,rounded corners=6pt]
+  (5.08,-4.11) rectangle (9.52,-2.47);
+% Control console, subtle lower edge and three calibrated dials.
+\path[fill=ink!16,rounded corners=3pt] (5.34,-3.7) rectangle (7.54,-2.83);
+\draw[draw=ink!90,fill=ochre!24,line width=.9pt,rounded corners=3pt]
+  (5.3,-3.65) rectangle (7.5,-2.78);
+\foreach \x/\name/\angle in {5.72/Buckets/65,6.4/$\ldots$/145,7.08/Weights/105} {
+  \node[font=\sffamily\tiny] at (\x,-2.98) {\name};
+  \foreach \a in {30,75,120,165,210,255,300}
+    \draw[draw=ink!55,line width=.5pt] (\x,-3.36) ++(\a:.192)--++(\a:.035);
+  \draw[draw=ink!85,fill=ochre!14,line width=.7pt] (\x,-3.36) circle (.143);
+  \draw[draw=blue,line width=.9pt] (\x,-3.36)--+(\angle:.102);
+  \fill[ink!90] (\x,-3.36) circle (.022);
+}
+% Neck, rounded torso and shoulders.
+\draw[draw=blue!90,fill=blue!45,line width=.75pt]
+  (8.19,-3.3) rectangle (8.39,-3.05);
+\draw[draw=blue!90,fill=blue!40,line width=.95pt,rounded corners=5pt]
+  (7.91,-3.68) rectangle (8.78,-3.18);
+\draw[draw=blue!65,line width=.65pt] (8.13,-3.56)--(8.53,-3.56);
+\fill[teal!75] (8.6,-3.35) circle (.03);
+% Domed shell, white faceplate and two compact eyes.
+\draw[draw=blue!95,fill=blue!38,line width=.95pt]
+  (7.98,-3.08)
+  .. controls (7.83,-2.98) and (7.92,-2.78) .. (8.04,-2.68)
+  .. controls (8.24,-2.52) and (8.55,-2.64) .. (8.64,-2.81)
+  .. controls (8.74,-2.99) and (8.62,-3.1) .. (8.49,-3.12)
+  .. controls (8.3,-3.15) and (8.11,-3.15) .. (7.98,-3.08)--cycle;
+\draw[draw=blue!90,fill=blue!9,line width=.55pt,rounded corners=3pt]
+  (8.01,-3.015) rectangle (8.5,-2.79);
+\foreach \x in {8.14,8.36}
+  \fill[blue!90] (\x,-2.9) circle (.039);
+\draw[draw=ink!80,fill=blue!6,line width=.75pt] (7.97,-2.92) circle (.067);
+% Articulated reaching arm: upper arm, elbow and forearm to the w knob.
+\draw[draw=blue!90,line width=3.4pt]
+  (8.49,-3.34) .. controls (8.29,-3.51) and (8.01,-3.56) .. (7.8,-3.54)
+  .. controls (7.55,-3.53) and (7.33,-3.48) .. (7.17,-3.39);
+\draw[draw=blue!38,line width=1.9pt]
+  (8.49,-3.34) .. controls (8.29,-3.51) and (8.01,-3.56) .. (7.8,-3.54)
+  .. controls (7.55,-3.53) and (7.33,-3.48) .. (7.17,-3.39);
+\foreach \x/\y in {8.49/-3.34,7.8/-3.54}
+  \draw[draw=blue!80,fill=blue!20,line width=.65pt] (\x,\y) circle (.056);
+\draw[draw=blue!85,fill=white,line width=.7pt] (7.14,-3.38) circle (.062);
+\node[font=\sffamily\small,text=ink] at (7.3,-3.91) {AI agent};
+
+\end{scope}
+
+% Explicit external tools, aligned with the steps that they execute.
+\foreach \x/\col in {10.95/teal,14.6/sage} {
+  \draw[draw=ink!55,fill=white,line width=.7pt,rounded corners=5pt]
+    (\x-1.32,-4.11) rectangle (\x+1.32,-2.47);
+  \draw[draw=\col,line width=1.1pt] (\x-.45,-2.47)--(\x+.45,-2.47);
+}
+% LP solver: an optimization workstation, search trajectory and computing gear.
+\begin{scope}[xshift=10.95cm]
+  % Stand and monitor bezel.
+  \draw[draw=ink!80,fill=ink!12,line width=.65pt,rounded corners=1pt]
+    (-.27,-3.57) rectangle (-.08,-3.27);
+  \draw[draw=ink!80,fill=ink!10,line width=.65pt,rounded corners=1.5pt]
+    (-.49,-3.61) rectangle (.14,-3.51);
+  \draw[draw=ink!90,fill=ink!7,line width=.8pt,rounded corners=2.5pt]
+    (-.93,-3.39) rectangle (.58,-2.63);
+  \draw[draw=ink!45,fill=white,line width=.45pt,rounded corners=.8pt]
+    (-.84,-3.29) rectangle (.49,-2.71);
+  % Feasible region, trial points and an improving search direction.
+  \draw[draw=ochre!95!black,fill=ochre!28,line width=.6pt]
+    (-.72,-3.2)--(-.69,-2.96)--(-.25,-2.78)--(.35,-2.94)--(.15,-3.2)--cycle;
+  \draw[draw=ochre!60,line width=.5pt,densely dashed]
+    (-.59,-3.13)--(-.28,-3.04);
+  \draw[flow,draw=ochre!95!black,line width=.75pt]
+    (-.28,-3.04)--(.35,-2.94);
+  \foreach \x/\y in {-.59/-3.13,-.28/-3.04}
+    \fill[ochre!90!black] (\x,\y) circle (.025);
+  \draw[draw=ochre!95!black,fill=white,line width=.65pt]
+    (.35,-2.94) circle (.064);
+  \fill[ochre!95!black] (.35,-2.94) circle (.026);
+  % Visible cog represents numerical computation, not another LP variable.
+  \begin{scope}[shift={(.66,-3.32)}]
+    \foreach \a in {0,45,...,315} {
+      \begin{scope}[rotate=\a]
+        \draw[draw=ink!80,fill=ochre!55,line width=.5pt,rounded corners=.3pt]
+          (-.056,.2) rectangle (.056,.31);
+      \end{scope}
+    }
+    \draw[draw=ink!80,fill=ochre!55,line width=.65pt] (0,0) circle (.236);
+    \draw[draw=ink!80,fill=white,line width=.55pt] (0,0) circle (.09);
+  \end{scope}
+  \node[font=\sffamily\small] at (0,-3.84) {LP solver};
+\end{scope}
+% Exact verifier: rational certificate, magnifying glass and a passed check.
+\begin{scope}[xshift=14.6cm]
+  % Clipboard with symbolic fractions; no invented numerical certificate.
+  \draw[draw=ink!90,fill=sage!14,line width=.75pt,rounded corners=2pt]
+    (-.84,-3.6) rectangle (.12,-2.67);
+  \draw[draw=ink!30,fill=white,line width=.45pt,rounded corners=.8pt]
+    (-.76,-3.53) rectangle (.04,-2.75);
+  \draw[draw=ink!80,fill=ink!13,line width=.65pt,rounded corners=1pt]
+    (-.59,-2.78) rectangle (-.13,-2.6);
+  \node[font=\sffamily\tiny] at (-.59,-3.01) {test};
+  \node[font=\sffamily\tiny] at (-.59,-3.28) {test};
+  \foreach \y in {-3.01,-3.28}
+    \draw[draw=sage!60,line width=1.05pt] (-.4,\y)--(-.12,\y);
+  % Magnifier handle behind the lens.
+  \draw[draw=ink!85,line width=4.2pt] (.47,-3.26)--(.8,-3.58);
+  \draw[draw=sage!65,line width=2.5pt] (.47,-3.26)--(.8,-3.58);
+  \draw[draw=ink!85,fill=sage!6,line width=.95pt] (.26,-3.04) circle (.34);
+  \draw[draw=sage!45,line width=.45pt] (.26,-3.04) circle (.277);
+  \node[font=\sffamily\tiny,text=sage!90!black] at (.26,-3.04) {Exact};
+  % A small verification seal complements the rational-arithmetic lens.
+  \draw[draw=sage,fill=sage!15,line width=.65pt] (.78,-2.8) circle (.17);
+  \draw[draw=sage,line width=1.05pt]
+    (.685,-2.8)--(.755,-2.875)--(.88,-2.725);
+  \node[font=\sffamily\small] at (0,-3.84) {Exact verifier};
+\end{scope}
+
+% Agent tunes the bucket/rounding data directly.
+\draw[control,rounded corners=5pt] (4.5,-2.44)--(4.5,-2.02)--(0,-2.02)--(0,-1.56);
+% Each callable tool executes its corresponding upper-row step.
+\draw[control,draw=teal] (10.95,-2.44)--(10.95,-1.56);
+\draw[control,draw=sage] (14.6,-2.44)--(14.6,-1.56);
+% LP call and candidate return use separate lanes.
+\draw[control] (6.75,-2.95)--(9.6,-2.95)
+  node[midway,above=2pt,font=\sffamily\scriptsize,text=blue] {fixed settings};
+\draw[feedback] (9.6,-3.51)--(6.75,-3.51)
+  node[midway,above=2pt,font=\sffamily\scriptsize,text=ink] {candidate};
+% The exact verifier is also called by the agent; it is not autonomous.
+\draw[control,rounded corners=6pt]
+  (6.75,-3.84)--(7.52,-3.84)--(7.52,-4.58)--(12.98,-4.58)
+  --(12.98,-3.3)--(13.25,-3.3);
+\node[font=\sffamily\scriptsize,text=blue,fill=white,inner sep=2pt]
+  at (10.25,-4.58) {call};
+% Exact checks return to the agent for acceptance or further refinement.
+\draw[feedback,rounded corners=6pt]
+  (14.6,-4.14)--(14.6,-5.15)--(4.5,-5.15)--(4.5,-4.15);
+\node[font=\sffamily\scriptsize,text=ink,fill=white,inner sep=2pt]
+  at (9.4,-5.15) {verification feedback};
+\end{tikzpicture}

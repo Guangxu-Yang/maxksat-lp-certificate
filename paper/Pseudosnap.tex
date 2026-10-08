@@ -1,0 +1,263 @@
+\section{Closeness of the weighted snapshot and pseudo-snapshot}
+\label{sec:weighted-pseudosnapshot-closeness}
+
+The last  section reduces approximating $\OPT(\Phi)$ to estimating the weighted snapshot score $L^{\Theta}(\Phi)$.
+With the rounding profile and coefficients fixed, the remaining task is to estimate the one-endpoint and two-endpoint coordinates of the weighted snapshot.
+The weighted snapshot groups and counts clauses by length, signs, and bias; the first two can be verified immediately as each clause arrives, whereas  the bias cannot: it can only be computed after the stream ends, once all degree information has been collected. However, with only logarithmic space, we can store at most \(O(1)\) clauses, which is insufficient to maintain the statistic over \(\operatorname{poly}(n)\) clauses.
+
+
+
+
+
+
+In this section, we extend the pseudo-bias and pseudo-snapshot construction of Kallaugher, Parekh, and Voronova~\cite{KPV23} to the weighted degrees of Max-$k$SAT.
+When each clause \(C\) arrives, we split the degree information at \(C\) into prefix and suffix parts.
+Our quantum algorithm updates prefix degrees as clauses arrive; it  samples clauses with the required length and literal signs with probability $\tau$, stores those selected, and counts their exact suffix degrees.
+After the stream, each sampled clause whose pseudo-biases lie in the required buckets contributes $1/\tau$ to the estimate.
+
+We first define the prefix and suffix degrees,  together with the corresponding approximations; then we  define the pseudo-bias and the  pseudo-snapshot. 
+Finally we show that using pseudo-bias as the replacement of the bias only costs an additive $O(\eps m)$ loss.
+
+
+
+\paragraph{Prefix and suffix degrees.}
+Throughout this section  we focus on the short instance $\Phi_{\le \ell_0}$, since for the long clause we count the number $M_{>\ell_0}$ directly.
+For time $t\ge 1$, denote the clause arriving at $t$ by $C=C_t$; and for any  $i\in [t]$, let $\ell_{i}:= |C_i|$. For any variable $x_v$,  $v\in [n]$, define the  prefix positive degree and prefix  total degree by
+\[
+  p_v^{\le C}
+  :=\sum_{\substack{i\in[t],\ \ell_{i} \le\ell_0\\ x_v\in C_i}}w_{\ell_i },
+  \qquad\qquad
+  d_v^{\le C} :=\sum_{\substack{i\in[t],\ \ell_{i} \le\ell_0\\
+  x_v\in C_i\ \text{or}\ \neg x_v\in C_i}}w_{\ell_i },
+\]
+where $w_{\ell_i}$ is the corresponding entry of $\bw$; see Definition~\ref{def:maxksat-bias}.
+Recall that $\widetilde p_v$ and $\widetilde q_v$ are the positive weighted degree and the negative weighted degree.
+Let $\widetilde d_v:=\widetilde p_v+\widetilde q_v$, and define the corresponding suffix degrees by
+\[
+  p_v^{>C}:=\widetilde p_v-p_v^{\le C},
+  \qquad
+  d_v^{>C}:=\widetilde d_v-d_v^{\le C}.
+\]
+
+
+
+
+
+
+
+
+
+\paragraph{Literal copies.}
+Multiply the rational weights by a common denominator so that $w_\ell\in\mathbb Z_{>0}$; this leaves all biases and snapshot scores unchanged.
+For ease of  algorithm design, we count degrees by making $w_{|C|}$ copies of each relevant literal in a clause $C$, rather than multiplying by $w_{|C|}$; and we apply the same tests and counting procedure to each copy.
+
+For each clause $C\in\Phi_{\le\ell_0}$, denote the length  $\ell:= |C|$ and  make $w_{\ell}$ copies of each literal. For the $j$-th literal of $C$,   define 
+the copy $(C,j,h)$ with variable $v_j(C)$ and sign $s_j(C)$, for each  $j\in[\ell]$ and $h\in[w_{\ell } ]$.
+The prefix and suffix degrees above count these copies; the algorithm does not store the copies separately.
+In particular, the total number of literal copies in $\Phi_{\le\ell_0}$ is
+\begin{equation}
+  \sum_{v=1}^n\widetilde d_v
+  =\sum_{\ell=1}^{\ell_0}\ell w_\ell M_\ell
+  \le m\cdot \max_{\ell\in[\ell_0]}\ell w_\ell = O(m),
+  \label{eq:weighted-total-copies}
+\end{equation}
+where $\max_{\ell\in[\ell_0]}\ell w_\ell = O(1)$ by our parameter choices. 
+
+
+\paragraph{Degree intervals.} For our quantum algorithm in the next section,  
+the quantum estimators test whether the total prefix degree lies in a specified degree interval; 
+and  we approximate it by the interval  endpoint; besides, we  approximate the positive prefix degree by sampling positive copies and capping the sampled count.
+
+
+
+More concretely,  fix $0<\eps<1/10$. Define the degree levels by a geometric sequence as
+\[
+  D_0:=0,\qquad D_a:=\lfloor(1+\eps^3)^a\rfloor\quad(1\le a\le A),
+\]
+where $A$ is the least index with $D_A\ge m\max_{\ell\in[\ell_0]}\ell w_\ell$; by Inequality~\eqref{eq:weighted-total-copies}, $A=O_\eps(\log(m+1))$.
+The \textit{degree intervals} are $(D_a,D_{a+1}]$ for $0\le a<A$; empty intervals are ignored.
+
+
+
+
+
+
+
+\paragraph{Degree  approximation by random sampling.} 
+Since the prefix  degree may  range from $1$ to $O(m)$; to save the memory space, we use random sampling to sketch the high degree information so that the algorithm can only spend $O(1)$ space on the degree information of each variable.
+
+
+Let $\kappa = \lceil K\eps^{-7} \rceil $ where $K>0$ is a sufficiently large constant.
+For each degree interval $0\le a<A$ with $2D_a\ge\kappa$ and each positive copy $(C,j,h)$,
+define a random bit
+\begin{equation}
+    \label{eq:random_sampling}
+    f_a(C,j,h)\in\bits,\qquad \Pr[f_a(C,j,h)=1] =\frac{\kappa}{2D_a}.
+\end{equation}
+
+These sampling bits, denoted collectively by $\{f_a\}$, are mutually independent over all intervals and copies.
+
+For a clause $C$ containing $x_v$, choose $a$ with $D_a<d_v^{\le C}\le D_{a+1}$.
+If $2D_a<\kappa$, keep the prefix degrees exact:
+\[
+  \widetilde d_v^{\le C}:=d_v^{\le C},\qquad
+  \widetilde p_v^{\le C}:=p_v^{\le C}.
+\]
+Otherwise, let $s_v^{\le C}$ count the positive copies $(C',j,h)$ of $x_v$ in the prefix through $C$ for which $f_a(C',j,h)=1$, and set
+\[
+  \widetilde d_v^{\le C}:=D_a,\qquad
+  \widetilde p_v^{\le C}:=\frac{2D_a}{\kappa}\min\{s_v^{\le C},\kappa\}.
+\]
+
+\paragraph{Random noise.}     
+The random sampling sketch will cost an  additive error of the degree and the bias; and 
+an error in bias may change its bucket index. 
+To control these changes, independently sample a noise \begin{equation}\label{eq:noise}
+g(v)\sim\Unif[-\eps,\eps]   
+\end{equation}
+for each $v\in[n]$.
+The same $g(v)$ is used in every clause containing $x_v$.
+Write $$\clip(z):=\max\{-1,\min\{1,z\}\}.$$
+
+
+
+
+\medskip
+We now define the bias and snapshot actually used by our algorithm, termed pseudo-bias and pseudo-snapshot.
+\begin{definition}[Weighted pseudo-bias]
+\label{def:weighted-pseudobias}
+For a clause $C\in\Phi_{\le\ell_0}$ and a variable $x_v$ occurring in $C$, define its weighted pseudo-bias by
+\[
+  \widetilde b_v^{\,C}:=
+  \clip\left(
+    \frac{2(\widetilde p_v^{\le C}+p_v^{>C})}
+         {\widetilde d_v^{\le C}+d_v^{>C}}
+    -1+g(v)
+  \right).
+\]
+\end{definition}
+
+We use the pseudo-bias in place of the bias when assigning labels; and define the weighted pseudo-snapshot and the   score as follows.
+\begin{definition}[Weighted pseudo-snapshot]
+\label{def:weighted-pseudosnapshot}
+For any  clause $C\in\Phi_{\le\ell_0}$ with length $|C|=\ell$ and the position   $j\in[\ell ]$, let $\widetilde i_j(C)\in [L]$ be the bucket index with pseudo-bias $\widetilde b_{v_j(C)}^{\,C}\in I_{\widetilde i_j(C)}$, and define the label
+\[
+  \widetilde\alpha_j(C):=(s_j(C),\widetilde i_j(C)).
+\]
+The weighted pseudo-snapshot, denoted by $\PsSnap(\Phi_{\le\ell_0})$, consists of the one-endpoint and two-endpoint coordinates
+\[
+  \widetilde U_{\ell,j,\alpha}(\Phi)
+  :=\#\{C\in\Phi:|C|=\ell,\ \widetilde\alpha_j(C)=\alpha\},
+\]
+\[
+  \widetilde P_{\ell,j,t,\alpha,\beta}(\Phi)
+  :=\#\{C\in\Phi:|C|=\ell,\ \widetilde\alpha_j(C)=\alpha,\ \widetilde\alpha_t(C)=\beta\},
+\]
+where $1\le j\le\ell\le\ell_0$ and $\alpha,\beta\in\sgnset\times[L]$, with $j<t\le\ell$ for the two-endpoint coordinates.
+\end{definition}
+
+
+
+\begin{definition}
+[Weighted pseudo-snapshot score]
+\label{def:weighted-pseudosnapshot-score} 
+Use the rounding profile and coefficients giving the snapshot score approximation in Theorem~\ref{thm:maxksat_to_score}, keep $M_\ell$ unchanged, and define the weighted pseudo-snapshot score as
+\[
+\begin{aligned}
+  L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))
+  := &\sum_\alpha \widetilde U_{1,1,\alpha}q_\alpha
+    +\sum_{\alpha,\beta}\widetilde  P_{2,1,2,\alpha,\beta}
+      \bigl(1-(1-q_\alpha)(1-q_\beta)\bigr)\\
+  &+\sum_{\ell=3}^{\ell_0} \bigg[   c_{\ell}\cdot M_{\ell} +\sum_{1\le j\le \ell} \sum_\alpha u_{\ell,j}(\alpha) \widetilde  U_{\ell,j,\alpha}
+    +\sum_{1\le j<t\le\ell} \sum_{\alpha,\beta}
+      p_{\ell,jt}(\alpha,\beta) \widetilde  P_{\ell,j,t,\alpha,\beta} \bigg],
+\end{aligned}
+\]
+\end{definition}
+
+
+
+
+
+
+The following theorem shows that the pseudo-snapshot score approximates $\OPT(\Phi)$ with a small extra loss. Recall the sampling bits $f_a$ for positive literal copies in~\eqref{eq:random_sampling} and the uniform noise $g(v)\sim\Unif[-\eps,\eps]$ in~\eqref{eq:noise}, shared by all clauses containing $x_v$.
+
+
+
+
+
+
+
+
+
+\begin{theorem}[Weighted pseudo-snapshot to value]
+\label{thm:weighted-pseudosnapshot-to-value}
+There exist constants $\gamma_0,\gamma_1>0$, depending only on the fixed rounding profile and coefficients, so that with probability at least $1-O(\eps)$ over the sampling bits $\{f_a\}$ and noise $g$, we have
+\[
+  \rho\,\OPT(\Phi)-\gamma_1\eps m
+  \le L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))
+     +\rho M_{>\ell_0}-\gamma_0\eps m
+  \le\OPT(\Phi).
+\]
+\end{theorem}
+The proof of Theorem~\ref{thm:weighted-pseudosnapshot-to-value} is deferred to the end of this  section. Before proving Theorem~\ref{thm:weighted-pseudosnapshot-to-value}, we need the following two lemmas; the first lemma shows   that the weighted snapshot score with under random noise can also  approximate $\OPT(\Phi)$ with an additive error, and the second lemma shows that the weighted pseudo-snapshot is close to the weighted snapshot.
+
+
+\medskip
+Apply the same variable noise to the weighted biases and set
+\[
+  b'_v:=\clip(\widetilde b_v+g(v)),\qquad
+  b'_v\in I_{i'(v)}\quad(v\in[n]).
+\]
+Let $\Snap_{\eps}(\Phi_{\le\ell_0})$ be the weighted snapshot obtained by replacing each label $\alpha_j(C)$ with $(s_j(C),i'(v_j(C)))$ in Definition~\ref{def:weighted-snapshot}.
+Since $\widetilde b_v\in[-1,1]$ and $|g(v)|\le\eps$, we have
+\[
+  |b'_v-\widetilde b_v|\le\eps
+  \quad\Longrightarrow\quad
+  a_{i'(v)}-\eps\le\widetilde b_v\le b_{i'(v)}+\eps.
+\]
+The following lemma shows that these bucket indices retain the approximation guarantee with an additive error.
+\begin{samepage}
+\begin{lemma}[Snapshot score with an additive error]
+\label{lem:weighted-snapshot-score-error}
+Use the rounding profile $\Theta$ and coefficients giving the snapshot score approximation in Lemma~\ref{lem:maxksat-weighted-snapshot-bound}.
+There is a constant $\gamma_2>0$, depending only on the fixed rounding profile and coefficients, such that for every choice of $g(v)\in[-\eps,\eps]$, $v\in[n]$, we have
+\[
+  \rho\,\OPT(\Phi)-\gamma_2\eps m
+  \le L_{\le\ell_0}^\Theta(\Snap_{\eps}(\Phi_{\le\ell_0}))
+     +\rho M_{>\ell_0}
+  \le\OPT(\Phi).
+\]
+\end{lemma}
+\end{samepage}
+The proof of Lemma~\ref{lem:weighted-snapshot-score-error} is in Appendix~\ref{app:weighted-snapshot-proofs}.
+We now compare $\Snap_{\eps}$ with the pseudo-snapshot, using the same noise.
+\begin{lemma}[Closeness of the two snapshots]
+\label{lem:weighted-snapshot-closeness}
+With probability at least $1-O(\eps)$ over $\{f_a\}$ and $g$, we have
+\[
+  \norm{\PsSnap(\Phi_{\le\ell_0})-\Snap_{\eps}(\Phi_{\le\ell_0})}_1
+  \le O(\eps m).
+\]
+\end{lemma}
+The proof of Lemma~\ref{lem:weighted-snapshot-closeness} is in Appendix~\ref{app:weighted-snapshot-proofs}. We combine Lemmas~\ref{lem:weighted-snapshot-score-error} and~\ref{lem:weighted-snapshot-closeness} to prove Theorem~\ref{thm:weighted-pseudosnapshot-to-value}.
+
+\begin{samepage}
+\begin{proof}[Proof of Theorem~\ref{thm:weighted-pseudosnapshot-to-value}]
+Assume the distance bound in Lemma~\ref{lem:weighted-snapshot-closeness} holds.
+Since the score is linear with fixed coefficients and the clause counts $M_\ell$ are unchanged, there is a constant $\gamma_3>0$ such that
+\begin{equation}
+  \left|L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))
+       -L_{\le\ell_0}^\Theta(\Snap_{\eps}(\Phi_{\le\ell_0}))\right|
+  \le\gamma_3\eps m.
+  \label{eq:weighted-pseudosnapshot-score-distance}
+\end{equation}
+Lemma~\ref{lem:weighted-snapshot-score-error} therefore gives
+\[
+  \rho\,\OPT(\Phi)-(\gamma_2+\gamma_3)\eps m
+  \le L_{\le\ell_0}^\Theta(\PsSnap(\Phi_{\le\ell_0}))+\rho M_{>\ell_0}
+  \le\OPT(\Phi)+\gamma_3\eps m.
+\]
+Subtracting $\gamma_3\eps m$ proves the claim with $\gamma_0=\gamma_3$ and $\gamma_1=\gamma_2+2\gamma_3$.
+\end{proof}
+\end{samepage}
