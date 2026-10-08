@@ -1,0 +1,12 @@
+{
+  "attempt.json": "31eb055de861b2203a7d37298460529ae11e15e4cf02e3eb163c57535754693a",
+  "exact_candidate.json": "84ad3c58240ee3677d733a625c7abb8097abf74975a359b40d3c9737b03e342b",
+  "fine_unary_raw.json": "e1ee590b5346aa2fc77fdbcfc29b473d1ba9e31809cb4ec026b3b747249d0c3b",
+  "identity_report.json": "9477bd303987f1ad86ad79913e53a3a060d466dc54670d7e46c50f1c30a16ebd",
+  "initial_witness_audit.json": "14230b20e2399f09c364a44a05c97a6ca74aa2ee7ca82bbfbe359f8eb8d342fb",
+  "numerical_payload.json": "ff19fcb1f6b7655a286d652e681535e3d848601822513fa28ffd903ddcbf9740",
+  "registration.json": "14635f40dc36bd583aa5056a28374f27e9da4bab9dd925de4f007f643c36ade7",
+  "run_lease.json": "b598a2957ac1b5c88a3e1e1416a1da1ce25b49a153555e6291ab1058130edfc9",
+  "summary.json": "b3f0323f4d9029583606d6cefde308f447cc795e8a87460d4124732a3c9943f5",
+  "verify_report.json": "32e25248fbd6159ca04f4927bbbf4068b1664e513b70c790f4e99ad9532538a0"
+}

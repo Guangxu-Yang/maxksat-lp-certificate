@@ -1,0 +1,10 @@
+{
+  "design_hash": "50840a0d010b4f8ecb7e703bdedf8a058dc0b90d1751b1d13a51af855ebcd5c4",
+  "finished_utc": "2026-09-06T05:20:00.200684Z",
+  "numerical_ok": true,
+  "numerical_status": "complete_joint_numeric_candidate",
+  "pid": 35976,
+  "started_utc": "2026-09-06T04:59:57.442719Z",
+  "status": "completed",
+  "verified_rho": "742694813/1000000000"
+}
