@@ -1,151 +1,80 @@
-# Max-kSAT LP Certificate
+# Max-kSAT: AI-Agent-Assisted Search, Exact Certificates
 
-This repository contains the exact rational verifier for the finite
-factor-revealing LP certificate used in the Max-\(k\)SAT quantum streaming
-upper bound.
+An AI agent explores the rounding-profile design space; a separate exact verifier checks the resulting rational certificate. This repository releases the **0.742694813 Max-kSAT certificate** and the accompanying manuscript, *Exponential Quantum Space Advantage for Approximating Max-kSAT in the Streaming Setting*, by **Haoyu Wang and Guangxu Yang**.
 
-The layout follows the lightweight artifact style of
-[`singerng/oblivious-csps`](https://github.com/singerng/oblivious-csps):
-there is a small exact verifier, an optional LP-search script, examples, and
-installation notes.  The mathematical certificate here is for Max-\(k\)SAT,
-rather than Singer's Max-\(k\)AND setting.
+The manuscript uses this certificate to obtain a **0.7426 approximation to the optimal value** in one pass with polylogarithmic quantum space. The certificate ratio and the streaming ratio differ because the streaming algorithm must absorb snapshot-estimation error. This is a certificate and verification artifact, not an implementation of the quantum streaming algorithm.
 
-The certificate proves the short-clause snapshot inequality
+## From AI-agent search to a checkable guarantee
 
-```text
-L_{\le 3}(Snap_{\le 3}(\Psi)) >= rho * OPT(\Psi)
+![AI-agent-assisted parameter search and exact verification](docs/assets/ai-agent-workflow.png)
+
+*The AI agent, LP solver, and exact verifier from the accompanying manuscript. [Vector version](docs/assets/ai-agent-workflow.svg) · [Original TikZ source](paper/AI_agent.tikz).*
+
+1. **Explore the profile.** The agent adjusts the short-clause cutoff, length weights, bias partition, and rounding probabilities, then uses LP results to guide the next candidate.
+2. **Refine the LP.** Violated constraints are added iteratively. Fine-label unary coefficients and shared group-pair coefficients make larger designs tractable.
+3. **Freeze the candidate.** The selected coefficients are converted to rational numbers and bound to the numerical input and design by identity checks and SHA-256 manifests.
+4. **Replay the mathematics.** A separate verifier recomputes all required constraint families using Python's `fractions.Fraction`. The certificate's correctness is established by these exact checks, rather than by the agent's narrative or a floating-point solver status.
+
+The supplied manuscript describes the agent-assisted search, but this release does not include a complete agent orchestrator, prompts, or the full research environment for rerunning that search. Archived numerical runner files are preserved as provenance; the supported executable workflow is verification of the fixed certificate.
+
+## Current result
+
+| Quantity | Value |
+| --- | --- |
+| Exact snapshot ratio | `742694813 / 1000000000 = 0.742694813` |
+| Paper's streaming approximation | `0.7426` |
+| Short-clause cutoff | `5` |
+| Bias partition | `500` positive-side buckets; `1000` after reflection |
+| Literal labels | `2000` pairs of literal sign and bias bucket |
+| Coarse literal-label groups | `20` |
+| Exact minimum constraint slack | `1 / 1000000000000` |
+| Constraint families | `14` |
+| Low-order label pairs | `2,001,000` |
+| High-order group multisets | `52,899` |
+| Exact upper-envelope transitions | `21,946,945` |
+
+The archived package calls this a **strict development incumbent**. It certifies the stated ratio; it does not establish optimality of the design or a `0.749` guarantee.
+
+## Verify it
+
+Use 64-bit Python 3.10 or newer. Verification requires only the standard library: no LP solver, GPU, or third-party Python package.
+
+**Quick integrity check** (does not recompute the mathematical constraints):
+
+```sh
+python3 -B examples.py verify
 ```
 
-for all Max-\(k\)SAT instances whose clauses have length at most three, where
+Expected: `PASS`, `Files: 35`, and `Checks: 37`.
 
-```text
-rho = 28691 / 40000 = 0.717275.
+**Full exact replay**, with a fresh output directory outside the immutable bundle:
+
+```sh
+python3 -B examples.py replay --output-dir replay-output/run-001
 ```
 
-Clauses of length at least four are handled separately by a uniform rounding
-floor.  The verifier checks all certificate inequalities exactly over the
-rationals using Python's `fractions.Fraction`.
+The exact computation can run silently for several minutes. Success requires `status = exact_verified`, `success = true`, the stated rational ratio and slack, and all coverage and identity flags in `FULL_EXACT_REPLAY.json`. Use a new output directory for each run. Do not use `-O`, `-OO`, or `PYTHONOPTIMIZE`.
 
-## Repository Layout
+The default CI runs the quick integrity check. A manually dispatched workflow can also run the full replay. See [INSTALLING](INSTALLING) for direct commands and Windows instructions, and [the certificate guide](docs/lp_certificate.md) for the proof scope.
 
-```text
-.
-├── INSTALLING
-├── examples.py
-├── scripts/
-│   ├── verify_certificate.py
-│   ├── verify_max2sat_certificate.py
-│   └── search_lp_certificate.py
-├── artifacts/
-│   └── max2sat/
-├── docs/
-│   ├── lp_certificate.md
-│   └── relationship_to_oblivious_csps.md
-├── tests/
-│   └── test_verify_certificate.py
-├── .github/workflows/
-│   └── verify.yml
-├── pyproject.toml
-└── README.md
-```
+## Repository map
 
-## Quick Start
+- [`artifacts/maxksat/strict-rho-0.742694813/`](artifacts/maxksat/strict-rho-0.742694813/): the supplied 35-file bundle, preserved byte for byte, including exact candidate, numerical payload, provenance, verifier sources, and archived reports.
+- [`paper/Main.tex`](paper/Main.tex): entry point for the supplied manuscript; its source files are preserved unchanged.
+- [`docs/ai_agent_workflow.md`](docs/ai_agent_workflow.md): agent narrative and a paper-to-code map.
+- [`docs/lp_certificate.md`](docs/lp_certificate.md): current mathematical certificate and verification boundaries.
+- [`docs/reproduction-guide-zh.md`](docs/reproduction-guide-zh.md): the supplied Chinese cross-machine reproduction guide (historical measurements are identified as such).
 
-Run all proof-relevant checks:
+The previous code and standalone Max-2SAT companion materials have been replaced by this new Max-kSAT release. The supplied manuscript retains its mathematical discussion of the special case and Boolean CSP classification.
 
-```bash
-python3 examples.py
-```
+## Provenance and limitations
 
-Run the exact verifier:
+Keep the immutable bundle unchanged, including its historical Windows paths. Those paths record the original environment; the portable replay tool binds the bundled numerical payload directly by SHA-256. Write reports outside the bundle and use `-B` to avoid adding bytecode files to its closed manifest.
 
-```bash
-python3 scripts/verify_certificate.py
-```
-
-Run the Max-2SAT companion verifier for the 450-bucket, 9-profile snapshot
-certificate.  Its default exact target is
-`18563/25000 = 0.74252`, which implies the stated `0.7425` guarantee with a
-small rational margin:
-
-```bash
-python3 scripts/verify_max2sat_certificate.py
-```
-
-Expected output:
-
-```text
-ratio rho: 28691/40000 = 0.717275000
-long-clause floor: ... = 0.717306925420
-upper constraints verified: 4096; minimum upper slack: ...
-atom inequalities verified: 33824; minimum certificate slack: ...
-nonzero H components: 659
-nonzero dual multipliers: 14
-```
-
-Run the smoke test:
-
-```bash
-python3 -m unittest discover -s tests
-```
-
-No third-party Python packages are required for verification.
-
-Optional: rerun the floating-point LP search that motivates the rational
-certificate:
-
-```bash
-python3 -m pip install ".[search]"
-python3 examples.py search
-```
-
-Optional: regenerate the Max-2SAT exact witness from the fixed 9-profile curve
-bundle:
-
-```bash
-python3 scripts/max2sat_multi_rounding_certificate_search.py \
-  --curves-json artifacts/max2sat/multirounding_L450_9_rounding_curves.json \
-  --output-json artifacts/max2sat/multirounding_L450_exact_witness.json
-```
-
-This search script is not part of the formal proof; it uses floating point
-linear programming.  The proof-relevant step is `verify_certificate.py`.
-
-## What Is Verified?
-
-The script verifies three finite rational statements.
-
-1. **Long-clause floor.**  The rounding vector ensures every literal is
-   satisfied with probability at least `27083/100000`, hence every clause of
-   length at least four is satisfied with probability strictly larger than
-   `rho`.
-
-2. **Ternary upper constraints.**  The pairwise-decomposable ternary surrogate
-   \(H\) is pointwise at most the true independent-rounding satisfaction
-   probability on every endpoint-label triple.
-
-3. **Short-clause lower certificate.**  For every typed unary, binary, or
-   ternary atom, the verifier checks a dual inequality of the form
-
-   ```text
-   h(c) - rho * o(c) + dual_correction(c) >= 0.
-   ```
-
-   Summing these inequalities over all atoms proves the global lower bound.
-
-See [docs/lp_certificate.md](docs/lp_certificate.md) for the mathematical
-description of the LP certificate.
-
-See
-[docs/relationship_to_oblivious_csps.md](docs/relationship_to_oblivious_csps.md)
-for how this artifact relates to Singer's `oblivious-csps` codebase.
+The archived promotion record retains only the hash of a historical mutable experiment-policy snapshot. Its original bytes are unavailable; the bundle documents this explicitly. That policy is outside the immutable mathematical certificate chain. File hashes establish consistency with the supplied manifests, not an external attestation of authorship.
 
 ## Citation
 
-If you use this artifact, cite the accompanying paper and mention that the
-certificate was checked exactly over \(\mathbb Q\).
+Cite Haoyu Wang and Guangxu Yang, *Exponential Quantum Space Advantage for Approximating Max-kSAT in the Streaming Setting*, and identify the exact certificate ratio `742694813/1000000000`. The supplied sources do not specify a venue, DOI, or arXiv identifier.
 
-## License
-
-No license has been selected yet.  Add a license before making the repository
-public if you want others to reuse the code.
+No software license has been specified in this repository.

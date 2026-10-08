@@ -1,63 +1,54 @@
-The exact verifier requires only Python >= 3.10 and the Python standard
-library.  No package installation is needed.
+Max-kSAT certificate verification
+================================
 
-To check the rational certificate:
+Python 3.10 or newer and the Python standard library are sufficient for both
+bundle verification and full exact replay. No package installation, solver,
+network access, or original author's directory layout is needed.
 
-    python3 scripts/verify_certificate.py
+Run the following commands from the repository root. On systems where Python
+is named `python` or `py -3`, substitute that command for `python3`.
 
-To run the smoke test:
+Quick verification
+------------------
 
-    python3 -m unittest discover -s tests
+    python3 -B examples.py verify
 
-Optional: floating-point LP search
-----------------------------------
+This checks the immutable rho = 742694813/1000000000 = 0.742694813 bundle:
+its complete file set, SHA-256 chains, bound source files and inputs,
+and the semantics of the archived exact-verification reports. It does not
+recompute the mathematical certificate.
 
-The file scripts/search_lp_certificate.py rebuilds the floating-point LP used
-to search for the certificate.  This is not part of the formal proof.  It
-requires scipy:
+The equivalent direct command for the current bundle is:
 
-    python3 -m venv .venv
-    source .venv/bin/activate
-    python3 -m pip install --upgrade pip
-    python3 -m pip install ".[search]"
-    python3 scripts/search_lp_certificate.py
+    python3 -B artifacts/maxksat/strict-rho-0.742694813/tools/verify_bundle.py --bundle-root artifacts/maxksat/strict-rho-0.742694813
 
-The proof-relevant artifact is scripts/verify_certificate.py, which checks the
-final rationalized certificate exactly over Q.
+Independent full exact replay
+-----------------------------
 
-Companion Max-2SAT appendix code
---------------------------------
+    python3 -B examples.py replay --output-dir replay-output/run-001
 
-The repository also contains the Max-2SAT appendix-facing `0.7425`
-construction line.
+This first checks the bundle, then recomputes the certificate using exact
+rational arithmetic and checks the generated reports against the archived
+reports (ignoring only the verification report's elapsed time). A successful
+run writes FULL_EXACT_REPLAY.json with success: true and status: exact_verified.
+This is the command to use for independent mathematical recomputation.
 
-This is not yet an exact rational verifier. It is the floating-point
-construction path for the appendix certificate.
+Use a new or empty output directory for every replay. Output paths are relative
+to the directory from which the command is invoked. Keep all generated reports
+outside artifacts/maxksat/strict-rho-0.742694813. The bundle is immutable and its
+verifier rejects unlisted files, including Python bytecode caches. The -B flag
+prevents creating those caches. Do not use -O, -OO, or PYTHONOPTIMIZE, because
+verification relies on assertions.
 
-The relevant scripts are:
+The replay tool has a default exact-verifier time limit of 1200 seconds. To
+change that limit, invoke it directly with a fresh external output directory:
 
-    scripts/max2sat_weighted_certificate_search.py
-    scripts/max2sat_build_multirounding_curves.py
-    scripts/max2sat_multi_rounding_certificate_search.py
+    python3 -B artifacts/maxksat/strict-rho-0.742694813/tools/replay_exact_certificate.py --bundle-root artifacts/maxksat/strict-rho-0.742694813 --output-dir replay-output/run-002 --max-seconds 2400
 
-The proof-relevant JSON artifacts are:
+Always supply --output-dir when using this direct command; the upstream tool's
+default output location is inside the bundle. Failure, a resource limit, or a
+nonzero exit status is not a successful certificate verification.
 
-    artifacts/max2sat/nonuniform_L450_focus0_str36_sig012_plus009_s6_w335.json
-    artifacts/max2sat/multirounding_L450_9_rounding_curves.json
-    artifacts/max2sat/multirounding_L450_focus36_sig012_plus009_s6_ultrafine_scales.json
-
-These scripts require NumPy and SciPy:
-
-    python3 -m venv .venv
-    source .venv/bin/activate
-    python3 -m pip install --upgrade pip
-    python3 -m pip install numpy scipy
-
-The intended chain is:
-
-1. use `max2sat_weighted_certificate_search.py` to produce a nonuniform base
-   curve and the base witness JSON;
-2. use `max2sat_build_multirounding_curves.py` to generate the nine scaled
-   rounding curves JSON;
-3. use `max2sat_multi_rounding_certificate_search.py` to certify the
-   multi-rounding witness JSON.
+GitHub Actions runs the quick bundle check on pushes and pull requests. Use
+the workflow's manual "Run workflow" action and enable full_replay to request
+the full exact replay.

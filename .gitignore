@@ -6,3 +6,6 @@ __pycache__/
 *.log
 *.aux
 *.out
+
+.venv/
+replay-output/

@@ -1,78 +1,76 @@
 #!/usr/bin/env python3
-"""Convenience entry points for the Max-kSAT LP certificate artifact.
+"""Verify or independently replay the rho=0.742694813 Max-kSAT bundle.
 
-This mirrors the lightweight examples.py style of singerng/oblivious-csps:
-the exact verifier is the main artifact, while the floating-point LP search is
-an optional reproducibility aid.
+The default check verifies the immutable bundle's integrity and archived report
+semantics. Use ``replay`` for a full exact-arithmetic recomputation.
 """
 
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 import subprocess
 import sys
-from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
+BUNDLE = ROOT / "artifacts" / "maxksat" / "strict-rho-0.742694813"
 
 
 def run(cmd: list[str]) -> None:
-    print("$", " ".join(cmd))
+    print("$", " ".join(cmd), flush=True)
     subprocess.run(cmd, cwd=ROOT, check=True)
 
 
 def verify() -> None:
-    """Run the exact rational certificate verifier."""
-    run([sys.executable, "scripts/verify_certificate.py"])
+    """Check bundle bytes, hash bindings, and archived result semantics."""
+    run([
+        sys.executable, "-B", str(BUNDLE / "tools" / "verify_bundle.py"),
+        "--bundle-root", str(BUNDLE),
+    ])
 
 
-def verify_max2sat() -> None:
-    """Run the exact rational Max-2SAT companion verifier."""
-    run([sys.executable, "scripts/verify_max2sat_certificate.py"])
-
-
-def test() -> None:
-    """Run the repository smoke tests."""
-    run([sys.executable, "-m", "unittest", "discover", "-s", "tests"])
-
-
-def search() -> None:
-    """Run the optional floating-point LP search.
-
-    This requires scipy.  The formal proof should rely on verify(), not on this
-    floating-point search.
-    """
-    run([sys.executable, "scripts/search_lp_certificate.py"])
-
-
-def all_checks() -> None:
-    """Run the exact verifier and smoke tests."""
+def replay(output_dir: Path) -> None:
+    """Recompute the exact certificate, writing a fresh report outside the bundle."""
     verify()
-    verify_max2sat()
-    test()
+    run([
+        sys.executable, "-B", str(BUNDLE / "tools" / "replay_exact_certificate.py"),
+        "--bundle-root", str(BUNDLE), "--output-dir", str(output_dir),
+    ])
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "command",
-        choices=["verify", "verify-max2sat", "test", "search", "all"],
+        choices=["verify", "replay"],
         nargs="?",
-        default="all",
-        help="which example/check to run",
+        default="verify",
+        help="check to run (default: verify)",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        help="required for replay: a new or empty directory outside the immutable bundle",
     )
     args = parser.parse_args()
-    if args.command == "verify":
-        verify()
-    elif args.command == "verify-max2sat":
-        verify_max2sat()
-    elif args.command == "test":
-        test()
-    elif args.command == "search":
-        search()
+    if not __debug__:
+        parser.error("run without -O/-OO or PYTHONOPTIMIZE; verification needs assertions")
+    if args.command == "replay":
+        if args.output_dir is None:
+            parser.error("replay requires --output-dir outside the immutable bundle")
+        output_dir = args.output_dir.expanduser().resolve()
+        if output_dir == BUNDLE or BUNDLE in output_dir.parents:
+            parser.error("--output-dir must be outside the immutable bundle")
+        if output_dir.exists() and (
+            not output_dir.is_dir() or any(output_dir.iterdir())
+        ):
+            parser.error("--output-dir must be a new or empty directory")
+        replay(output_dir)
+    elif args.output_dir is not None:
+        parser.error("--output-dir is only supported with replay")
     else:
-        all_checks()
+        verify()
 
 
 if __name__ == "__main__":

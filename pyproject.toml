@@ -1,13 +1,10 @@
 [project]
 name = "maxksat-lp-certificate"
-version = "0.1.0"
-description = "Exact rational verifier for a Max-kSAT LP certificate."
+version = "0.2.0"
+description = "AI-agent-assisted Max-kSAT certificate bundle with independent exact rational replay."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
-
-[project.optional-dependencies]
-search = ["numpy", "scipy"]
 
 [tool.ruff]
 line-length = 100
