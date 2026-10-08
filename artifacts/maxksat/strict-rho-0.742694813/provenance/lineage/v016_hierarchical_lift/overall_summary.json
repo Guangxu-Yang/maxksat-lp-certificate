@@ -1,0 +1,35 @@
+{
+  "artifact_content_sha256": "8138fc1a1f90323c6c802c92642259b4cc9558ee06a75a3784a5fb64cf74cdb5",
+  "controller_pid": 8528,
+  "elapsed_seconds": 212.45242860005237,
+  "events_file_sha256": "0a513a863b50ceb21ce1f626d496bf9110dc3364e8ead3aa365786eb287fbe6c",
+  "finished_utc": "2026-09-06T04:52:24.122513Z",
+  "is_formal_experiment": false,
+  "is_full_certificate": false,
+  "layers": [
+    {
+      "best_design_hash": "e525aa75fc696d464e6dfcda0e478691bd8d97e125a961fcf0e39fcdb9bce145",
+      "best_rho": 0.742609103474036,
+      "complete_count": 28,
+      "elapsed_seconds": 66.05840290011838,
+      "positive_bucket_count": 250,
+      "selected_count": 28,
+      "summary_file_sha256": "e9f1d558805a30b18011e76c63e2d23f19c2173167d798adf2252a8bd91ef75e",
+      "summary_path": "E:\\Workspace for codex\\Quantum Algorithm\\Workspace\\versions\\v016_j2_group_search\\artifacts\\development\\target_domain_hierarchical_lift_002\\layers\\p250\\summary.json"
+    },
+    {
+      "best_design_hash": "50840a0d010b4f8ecb7e703bdedf8a058dc0b90d1751b1d13a51af855ebcd5c4",
+      "best_rho": 0.7426948156744635,
+      "complete_count": 18,
+      "elapsed_seconds": 145.9341768999584,
+      "positive_bucket_count": 500,
+      "selected_count": 18,
+      "summary_file_sha256": "519e37af172aa88dae008595159a8f6b73bcf90556f7aea8f3047d9ffe140880",
+      "summary_path": "E:\\Workspace for codex\\Quantum Algorithm\\Workspace\\versions\\v016_j2_group_search\\artifacts\\development\\target_domain_hierarchical_lift_002\\layers\\p500\\summary.json"
+    }
+  ],
+  "registration_file_sha256": "f8ceaa6e473f719c70e6d81357feeeb3dada07c4ae039f5025eda101face473b",
+  "schema_version": "v016-target-domain-hierarchical-lift-summary-v1",
+  "scope": "bounded development promotion; every rho is a complete low-order relaxation value, not a full certificate",
+  "verified_rho": null
+}
