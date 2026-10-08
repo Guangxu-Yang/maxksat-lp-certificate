@@ -1,0 +1,237 @@
+{
+  "claim": {
+    "classification": "strict_development_incumbent",
+    "complete_cpu_lp": true,
+    "independent_fraction_identity": true,
+    "rho_decimal": "0.742694813",
+    "rho_fraction": "742694813/1000000000",
+    "target_reached": false,
+    "target_rho": "749/1000"
+  },
+  "created_utc": "2026-09-11T00:15:58.464835Z",
+  "file_count": 34,
+  "files": [
+    {
+      "path": "BUILD_RECORD.json",
+      "role": "bundle_build_record",
+      "sha256": "368b5580856ec5910e3b20fc6562fd4456555ff62eee66db4c9bcdb04678ecb5",
+      "size_bytes": 14650
+    },
+    {
+      "path": "README_CN.md",
+      "role": "human_readme",
+      "sha256": "7ca5a95b7eb776d3c04a42b94a414506ff7c8c333b8ee53bca2cd85b6a6fc678",
+      "size_bytes": 3993
+    },
+    {
+      "path": "original/certificate/SHA256SUMS.json",
+      "role": "immutable_certificate",
+      "sha256": "90dcbdeb54d29731bf39c0ee9e6c75b1b81c5c029edd75e59c7faebf039e6132",
+      "size_bytes": 935
+    },
+    {
+      "path": "original/certificate/exact_candidate.json",
+      "role": "immutable_certificate",
+      "sha256": "84ad3c58240ee3677d733a625c7abb8097abf74975a359b40d3c9737b03e342b",
+      "size_bytes": 409662
+    },
+    {
+      "path": "original/certificate/exact_gate/attempt.json",
+      "role": "immutable_certificate",
+      "sha256": "31eb055de861b2203a7d37298460529ae11e15e4cf02e3eb163c57535754693a",
+      "size_bytes": 1443
+    },
+    {
+      "path": "original/certificate/exact_gate/identity_report.json",
+      "role": "immutable_certificate",
+      "sha256": "9477bd303987f1ad86ad79913e53a3a060d466dc54670d7e46c50f1c30a16ebd",
+      "size_bytes": 1804
+    },
+    {
+      "path": "original/certificate/exact_gate/verify_report.json",
+      "role": "immutable_certificate",
+      "sha256": "32e25248fbd6159ca04f4927bbbf4068b1664e513b70c790f4e99ad9532538a0",
+      "size_bytes": 3222
+    },
+    {
+      "path": "original/certificate/fine_unary_raw.json",
+      "role": "immutable_certificate",
+      "sha256": "e1ee590b5346aa2fc77fdbcfc29b473d1ba9e31809cb4ec026b3b747249d0c3b",
+      "size_bytes": 14973938
+    },
+    {
+      "path": "original/certificate/initial_witness_audit.json",
+      "role": "immutable_certificate",
+      "sha256": "14230b20e2399f09c364a44a05c97a6ca74aa2ee7ca82bbfbe359f8eb8d342fb",
+      "size_bytes": 167
+    },
+    {
+      "path": "original/certificate/numerical_payload.json",
+      "role": "immutable_certificate",
+      "sha256": "ff19fcb1f6b7655a286d652e681535e3d848601822513fa28ffd903ddcbf9740",
+      "size_bytes": 206752
+    },
+    {
+      "path": "original/certificate/registration.json",
+      "role": "immutable_certificate",
+      "sha256": "14635f40dc36bd583aa5056a28374f27e9da4bab9dd925de4f007f643c36ade7",
+      "size_bytes": 2234
+    },
+    {
+      "path": "original/certificate/run_lease.json",
+      "role": "immutable_certificate",
+      "sha256": "b598a2957ac1b5c88a3e1e1416a1da1ce25b49a153555e6291ab1058130edfc9",
+      "size_bytes": 360
+    },
+    {
+      "path": "original/certificate/summary.json",
+      "role": "immutable_certificate",
+      "sha256": "b3f0323f4d9029583606d6cefde308f447cc795e8a87460d4124732a3c9943f5",
+      "size_bytes": 13255
+    },
+    {
+      "path": "original/promotion/SHA256SUMS.json",
+      "role": "immutable_promotion_record",
+      "sha256": "db314bb88bec3d819f3bf62568582d6bac84c8f8da692dfa2cde84a32ccae0e2",
+      "size_bytes": 1796
+    },
+    {
+      "path": "original/promotion/promotion.json",
+      "role": "immutable_promotion_record",
+      "sha256": "8475f73d5a2edcdbace963627c1ffef11bb5c3895384b319309b3cae7db10741",
+      "size_bytes": 5899
+    },
+    {
+      "path": "provenance/lineage/v014_anchor/certified_anchor.json",
+      "role": "direct_provenance_input",
+      "sha256": "f0ed94a4de5a47a610d475ef8d8beb57155bcca8727fc0c9d99e386169d81937",
+      "size_bytes": 514258
+    },
+    {
+      "path": "provenance/lineage/v016_fine_unary/warm_payload.json",
+      "role": "direct_provenance_input",
+      "sha256": "3820578dec5da9dfeb59179450584571e49ff2ce5b2388c1534610aa6b355ee0",
+      "size_bytes": 3628882
+    },
+    {
+      "path": "provenance/lineage/v016_hierarchical_lift/overall_summary.json",
+      "role": "direct_provenance_input",
+      "sha256": "8fd70cb76aa5123c1bbee8c9a87eb3dbf3fd5440eec247e61836214362d2a5ed",
+      "size_bytes": 1892
+    },
+    {
+      "path": "provenance/lineage/v016_hierarchical_lift/p500_source_candidate.json",
+      "role": "direct_provenance_input",
+      "sha256": "b070e1d2c07c593db19ce5fa9d117226f8ea75acd5e7a57bbf096c4880f28e57",
+      "size_bytes": 6119790
+    },
+    {
+      "path": "provenance/lineage/v016_hierarchical_lift/p500_summary.json",
+      "role": "direct_provenance_input",
+      "sha256": "519e37af172aa88dae008595159a8f6b73bcf90556f7aea8f3047d9ffe140880",
+      "size_bytes": 15917
+    },
+    {
+      "path": "provenance/logs/051_v016_P500严格基线提升与低阶瓶颈.md",
+      "role": "direct_provenance_input",
+      "sha256": "af833d4e29076fb85a06b7c654f391de2a32c931db816cdb463ce0008585853a",
+      "size_bytes": 2062
+    },
+    {
+      "path": "provenance/project_state/PRESERVATION_INDEX.json",
+      "role": "project_state_snapshot",
+      "sha256": "71cc97875209cb462e49979fe6616da28cb9ffa15e95c95a40fd168fbda51b6b",
+      "size_bytes": 3431
+    },
+    {
+      "path": "provenance/project_state/STABLE_RELEASE.json",
+      "role": "project_state_snapshot",
+      "sha256": "a11edf3be1c93ad5659ecff8e7034ea1acc265243e740c3c497e89ff8c1d54ae",
+      "size_bytes": 1708
+    },
+    {
+      "path": "tools/replay_exact_certificate.py",
+      "role": "portable_verification_tool",
+      "sha256": "09a23fb1c58080846a28fb6b3700ff23760925166efe40641a48a5736ca6e9f9",
+      "size_bytes": 23552
+    },
+    {
+      "path": "tools/verify_bundle.py",
+      "role": "portable_verification_tool",
+      "sha256": "e7d1ef2cda0e4f552fce200fe90a947b2da97dda3aacd0949f9dc1509302fce9",
+      "size_bytes": 51785
+    },
+    {
+      "path": "validation/full_exact_replay/FULL_EXACT_REPLAY.json",
+      "role": "fresh_bundle_validation_evidence",
+      "sha256": "b2d1782b98d6968e540646e5b2f7e7a3f3b3f1e6bae697ee2d9bb697ec3006b3",
+      "size_bytes": 7816
+    },
+    {
+      "path": "verifier/source/scripts/run_v016_target_design_fine_unary_full.py",
+      "role": "sha_bound_or_replay_source",
+      "sha256": "664ff8be216a01b68d4d005da406cf0de268f4c7eea958ca5f350e3ce0e07fb8",
+      "size_bytes": 13668
+    },
+    {
+      "path": "verifier/source/scripts/verify_v016_fine_unary_artifact.py",
+      "role": "sha_bound_or_replay_source",
+      "sha256": "1a10d74d6e40ed6a8d2aa00a1d2adb9261e666dbc609cd2418b5c0dea00b5a91",
+      "size_bytes": 3210
+    },
+    {
+      "path": "verifier/source/src/maxksat_large/__init__.py",
+      "role": "sha_bound_or_replay_source",
+      "sha256": "81d77faeb2f3837c6a810caa4688ac389a44e0ace32a0809e5b894e60ee6971a",
+      "size_bytes": 147
+    },
+    {
+      "path": "verifier/source/src/maxksat_large/design.py",
+      "role": "sha_bound_or_replay_source",
+      "sha256": "29717b1b41130e116eecb52e52387ea8b6cc360914ed5e69b1a3b181ab8c395f",
+      "size_bytes": 6540
+    },
+    {
+      "path": "verifier/source/src/maxksat_large/v016_fine_unary_exact.py",
+      "role": "sha_bound_or_replay_source",
+      "sha256": "5b00b23d690da9d5fb3c27bb737d865558c3f2bd45494dc54a5ed8573321f838",
+      "size_bytes": 32750
+    },
+    {
+      "path": "verifier/source/src/maxksat_large/v016_fine_unary_gate.py",
+      "role": "sha_bound_or_replay_source",
+      "sha256": "52b48a4cb58f8385a9e5ffee543432324c9a45af707f8843bcb79c2392f7e66d",
+      "size_bytes": 15580
+    },
+    {
+      "path": "verifier/source/src/maxksat_large/v016_fine_unary_identity.py",
+      "role": "sha_bound_or_replay_source",
+      "sha256": "2a47504eff95a2582f346469eadedc643a3f5f80d57ed53a2db5f54987488333",
+      "size_bytes": 22479
+    },
+    {
+      "path": "verifier/source/src/maxksat_large/v016_fine_unary_large.py",
+      "role": "sha_bound_or_replay_source",
+      "sha256": "93fe39eb5d695ddbbfdc0adbcf77aa0cacd937196356d4ac1f5d22fcc40eacdb",
+      "size_bytes": 64582
+    }
+  ],
+  "schema": "maxksat.strict_certificate_bundle_manifest.v1",
+  "source": {
+    "version": "v016_j2_group_search"
+  },
+  "total_bytes_excluding_manifest": 26170159,
+  "trust_anchors": {
+    "certificate_manifest": "90dcbdeb54d29731bf39c0ee9e6c75b1b81c5c029edd75e59c7faebf039e6132",
+    "exact_candidate": "84ad3c58240ee3677d733a625c7abb8097abf74975a359b40d3c9737b03e342b",
+    "exact_verify_report": "32e25248fbd6159ca04f4927bbbf4068b1664e513b70c790f4e99ad9532538a0",
+    "identity_report": "9477bd303987f1ad86ad79913e53a3a060d466dc54670d7e46c50f1c30a16ebd",
+    "promotion": "8475f73d5a2edcdbace963627c1ffef11bb5c3895384b319309b3cae7db10741",
+    "promotion_manifest": "db314bb88bec3d819f3bf62568582d6bac84c8f8da692dfa2cde84a32ccae0e2"
+  },
+  "verification": {
+    "fast": "python tools/verify_bundle.py --bundle-root .",
+    "full_fraction_replay": "python tools/replay_exact_certificate.py --bundle-root . --output-dir <new-empty-dir> --max-seconds 1200",
+    "full_replay_note": "The archived full replay under validation/ is immutable evidence from bundle assembly; a new replay must write outside this frozen bundle."
+  }
+}
